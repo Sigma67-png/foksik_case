@@ -1,50 +1,55 @@
 // ==================== DATA ====================
 const CASES = [
+  // === БЮДЖЕТНЫЕ КЕЙСЫ (до 100₽) ===
   {
-    id: 1, name: 'Стандартный кейс', desc: 'Базовые скины', price: 50,
+    id: 1, name: 'Стартовый кейс', desc: 'Базовые скины для новичков', price: 25,
     img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19cca2676-cef2-4912-9b77-bbc95b1d78ad.png',
-    badge: 'hot', category: ['popular', 'cheap'],
+    badge: 'hot', category: ['popular', 'cheap', 'budget'],
     items: [
-      { name: 'P350 | Песчаный', price: 15, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 35 },
-      { name: 'UMP | Буря', price: 35, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 25 },
-      { name: 'AKR | Пламя', price: 85, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 15 },
-      { name: 'M4 | Дракон', price: 150, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 8 },
-      { name: 'Нож | Галактика', price: 500, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 2 },
+      { name: 'P350 | Песчаный', price: 8, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 40 },
+      { name: 'G22 | Лес', price: 12, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 30 },
+      { name: 'UMP | Буря', price: 25, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 20 },
+      { name: 'AKR | Пламя', price: 65, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 8 },
+      { name: 'M4 | Дракон', price: 120, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 2 },
     ]
   },
   {
-    id: 2, name: 'Премиум кейс', desc: 'Редкие скины', price: 200,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/132c18a59-ccca-4163-a30e-2fc66a7de282.png',
-    badge: 'premium', category: ['premium'],
+    id: 2, name: 'Ледяной кейс', desc: 'Морозные текстуры', price: 50,
+    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png',
+    badge: null, category: ['cheap', 'budget'],
     items: [
-      { name: 'G22 | Киберпанк', price: 80, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 30 },
-      { name: 'AKR | Феникс', price: 180, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 25 },
-      { name: 'M4A1 | Дракон', price: 350, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 15 },
-      { name: 'AWM | Лёд', price: 500, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 10 },
-      { name: 'Керамбит | Галактика', price: 2500, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 3 },
+      { name: 'P350 | Мороз', price: 15, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 35 },
+      { name: 'UMP | Айс', price: 35, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 28 },
+      { name: 'AKR | Лавина', price: 85, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 18 },
+      { name: 'M4 | Blizzard', price: 200, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 10 },
+      { name: 'AWM | Фрост', price: 650, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 4 },
     ]
   },
   {
-    id: 3, name: 'Кейс ножей', desc: 'Только ножи!', price: 350,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png',
-    badge: 'new', category: ['knife', 'premium'],
-    items: [
-      { name: 'Байонет | Сталь', price: 200, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 30 },
-      { name: 'Керамбит | Пламя', price: 800, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 20 },
-      { name: 'М9 | Зуб', price: 1500, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 12 },
-      { name: 'Бабочка | Галактика', price: 5000, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 5 },
-    ]
-  },
-  {
-    id: 4, name: 'Кейс винтовок', desc: 'AKR, M4 и другие', price: 100,
+    id: 3, name: 'Военный кейс', desc: 'Оружие со службы', price: 75,
     img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png',
-    badge: 'hot', category: ['rifle', 'popular'],
+    badge: 'new', category: ['cheap', 'budget', 'rifle'],
     items: [
-      { name: 'AKR | Стандарт', price: 30, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 35 },
-      { name: 'M4 | Шторм', price: 70, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 25 },
-      { name: 'AKR | Феникс', price: 180, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 15 },
-      { name: 'M4A1 | Дракон', price: 400, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 8 },
-      { name: 'AWM | Ледяной', price: 1200, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 2 },
+      { name: 'M4A1 | Камуфляж', price: 25, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 35 },
+      { name: 'AKR | Тактика', price: 55, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 28 },
+      { name: 'FAMAS | Шторм', price: 95, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 18 },
+      { name: 'SCAR | Пустыня', price: 180, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 10 },
+      { name: 'AWM | Спецназ', price: 550, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 4 },
+    ]
+  },
+  
+  // === СРЕДНИЕ КЕЙСЫ (100-300₽) ===
+  {
+    id: 4, name: 'Стандартный кейс', desc: 'Баланс цены и качества', price: 100,
+    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19cca2676-cef2-4912-9b77-bbc95b1d78ad.png',
+    badge: 'hot', category: ['popular', 'rifle'],
+    items: [
+      { name: 'P350 | Неоновый', price: 35, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 30 },
+      { name: 'UMP | Кибер', price: 70, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 25 },
+      { name: 'AKR | Феникс', price: 150, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 20 },
+      { name: 'M4A1 | Дракон', price: 320, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 12 },
+      { name: 'AWM | Лёд', price: 850, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 5 },
+      { name: 'Керамбит | Огонь', price: 2200, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 1 },
     ]
   },
   {
@@ -52,32 +57,112 @@ const CASES = [
     img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png',
     badge: 'new', category: ['popular', 'cheap'],
     items: [
-      { name: 'P350 | Неоновый', price: 40, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 30 },
-      { name: 'UMP | Кибер', price: 90, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 25 },
-      { name: 'AKR | Киберпанк', price: 220, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 18 },
-      { name: 'M4 | Матрица', price: 450, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 10 },
-      { name: 'AWM | Хакер', price: 2000, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 3 },
+      { name: 'P350 | Хром', price: 45, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 30 },
+      { name: 'G22 | Киберпанк', price: 90, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 25 },
+      { name: 'AKR | Кибер', price: 180, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 18 },
+      { name: 'M4 | Матрица', price: 380, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 12 },
+      { name: 'AWM | Хакер', price: 1200, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 6 },
+      { name: 'Бабочка | Неоновая', price: 3500, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 2 },
     ]
   },
   {
-    id: 6, name: 'Ледяной кейс', desc: 'Морозные текстуры', price: 75,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png',
-    badge: null, category: ['cheap'],
+    id: 6, name: 'Кейс винтовок', desc: 'AKR, M4 и другие', price: 180,
+    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png',
+    badge: 'hot', category: ['rifle', 'popular'],
     items: [
-      { name: 'P350 | Мороз', price: 20, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 35 },
-      { name: 'UMP | Айс', price: 50, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 28 },
-      { name: 'AKR | Лавина', price: 120, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 15 },
-      { name: 'M4 | Blizzard', price: 300, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 8 },
-      { name: 'AWM | Фрост', price: 1000, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 3 },
+      { name: 'AKR | Стандарт', price: 55, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 30 },
+      { name: 'M4 | Шторм', price: 95, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 25 },
+      { name: 'AKR | Феникс', price: 220, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 18 },
+      { name: 'M4A1 | Золото', price: 480, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 10 },
+      { name: 'AWM | Легенда', price: 1400, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 5 },
+      { name: 'AKR | Император', price: 4200, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 2 },
+    ]
+  },
+  {
+    id: 7, name: 'Элитный кейс', desc: 'Для опытных игроков', price: 250,
+    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/132c18a59-ccca-4163-a30e-2fc66a7de282.png',
+    badge: 'premium', category: ['premium'],
+    items: [
+      { name: 'USP | Титан', price: 85, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 28 },
+      { name: 'M4A1 | Самурай', price: 180, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 22 },
+      { name: 'AKR | Дракон', price: 420, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 15 },
+      { name: 'AWM | Феникс', price: 950, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 8 },
+      { name: 'Керамбит | Божество', price: 5500, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 3 },
+    ]
+  },
+  
+  // === ПРЕМИУМ КЕЙСЫ (300-1000₽) ===
+  {
+    id: 8, name: 'Премиум кейс', desc: 'Редкие и дорогие скины', price: 350,
+    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/132c18a59-ccca-4163-a30e-2fc66a7de282.png',
+    badge: 'premium', category: ['premium'],
+    items: [
+      { name: 'G22 | Алмаз', price: 120, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 25 },
+      { name: 'AKR | Феникс', price: 280, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 22 },
+      { name: 'M4A1 | Империал', price: 580, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 15 },
+      { name: 'AWM | Бессмертие', price: 1650, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 10 },
+      { name: 'М9 Байонет | Радуга', price: 6800, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 4 },
+    ]
+  },
+  {
+    id: 9, name: 'Кейс ножей', desc: 'Только холодное оружие!', price: 500,
+    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png',
+    badge: 'new', category: ['knife', 'premium'],
+    items: [
+      { name: 'Штык-нож | Сталь', price: 350, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 30 },
+      { name: 'Керамбит | Пламя', price: 950, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 25 },
+      { name: 'М9 Байонет | Зуб', price: 2200, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 15 },
+      { name: 'Бабочка | Галактика', price: 7500, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 8 },
+      { name: 'Керамбит | Бог', price: 15000, rarity: 'ancient', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 2 },
+    ]
+  },
+  {
+    id: 10, name: 'Золотой кейс', desc: 'Эксклюзивные предметы', price: 750,
+    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png',
+    badge: 'premium', category: ['premium', 'knife'],
+    items: [
+      { name: 'Desert Eagle | Золото', price: 280, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 28 },
+      { name: 'AKR | Королевский', price: 680, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 22 },
+      { name: 'AWM | Мидас', price: 2400, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 12 },
+      { name: 'Бабочка | Золотая', price: 12000, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 6 },
+      { name: 'Керамбит | Феникс', price: 25000, rarity: 'ancient', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 2 },
+    ]
+  },
+  
+  // === ЭКСКЛЮЗИВНЫЕ КЕЙСЫ (1000₽+) ===
+  {
+    id: 11, name: 'Кейс дракона', desc: 'Легендарная мощь', price: 1200,
+    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png',
+    badge: 'premium', category: ['premium'],
+    items: [
+      { name: 'M4A1 | Дракон', price: 580, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 30 },
+      { name: 'AKR | Древний', price: 1450, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 20 },
+      { name: 'AWM | Драконий глаз', price: 4800, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 12 },
+      { name: 'Керамбит | Дракон', price: 18000, rarity: 'ancient', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 5 },
+      { name: 'Перчатки | Дракон', price: 45000, rarity: 'divine', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 1 },
+    ]
+  },
+  {
+    id: 12, name: 'Божественный кейс', desc: 'Предметы богов', price: 2500,
+    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png',
+    badge: 'premium', category: ['premium'],
+    items: [
+      { name: 'USP | Олимп', price: 950, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 25 },
+      { name: 'AKR | Зевс', price: 3200, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 18 },
+      { name: 'М9 | Посейдон', price: 12500, rarity: 'ancient', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 10 },
+      { name: 'Бабочка | Аид', price: 35000, rarity: 'divine', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 4 },
+      { name: 'Перчатки | Титан', price: 85000, rarity: 'divine', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 2 },
     ]
   },
 ];
 
 const BATTLES = [
-  { id: 1, title: 'Батл 2x', status: 'waiting', players: '1/2', price: 500, cases: [CASES[0], CASES[1]], host: 'PlayerOne' },
-  { id: 2, title: 'Батл 3x', status: 'waiting', players: '2/3', price: 750, cases: [CASES[2], CASES[3], CASES[4]], host: 'SkyWalker' },
-  { id: 3, title: 'Премиум батл', status: 'waiting', players: '1/2', price: 1500, cases: [CASES[1], CASES[2]], host: 'NightOwl' },
-  { id: 4, title: 'Быстрый батл', status: 'waiting', players: '1/2', price: 200, cases: [CASES[0], CASES[5]], host: 'FastGamer' },
+  { id: 1, title: 'Батл 2x', status: 'waiting', players: '1/2', price: 100, cases: [CASES[0], CASES[1]], host: 'PlayerOne' },
+  { id: 2, title: 'Батл 3x', status: 'waiting', players: '2/3', price: 225, cases: [CASES[2], CASES[3], CASES[4]], host: 'SkyWalker' },
+  { id: 3, title: 'Премиум батл', status: 'waiting', players: '1/2', price: 600, cases: [CASES[7], CASES[8]], host: 'NightOwl' },
+  { id: 4, title: 'Быстрый батл', status: 'waiting', players: '1/2', price: 75, cases: [CASES[0], CASES[2]], host: 'FastGamer' },
+  { id: 5, title: 'Ножевой батл', status: 'waiting', players: '1/2', price: 1000, cases: [CASES[8], CASES[9]], host: 'KnifeMaster' },
+  { id: 6, title: 'Элитный батл', status: 'waiting', players: '1/2', price: 2500, cases: [CASES[10], CASES[11]], host: 'DragonSlayer' },
 ];
 
 // ==================== STATE ====================
@@ -619,7 +704,9 @@ function getRarityColor(rarity) {
     rare: '#4b69ff',
     epic: '#8847ff',
     legendary: '#d32ce6',
-    contraband: '#eb4b4b'
+    contraband: '#eb4b4b',
+    ancient: '#ff6b35',
+    divine: '#ffd700'
   };
   return colors[rarity] || '#b0c3d9';
 }
