@@ -283,9 +283,19 @@ function startLiveFeed() {
 }
 
 // ==================== CASE OPENING ====================
+let spinTimeout = null; // таймер завершения прокрутки (для корректного перезапуска)
+
 function openCase(caseId) {
   const caseData = CASES.find(c => c.id === caseId);
   if (!caseData) return;
+
+  // Если предыдущая прокрутка ещё не завершилась, отменяем её таймер,
+  // чтобы окно выигрыша от старого крута не «прикрыло» новый кейс
+  if (spinTimeout) {
+    clearTimeout(spinTimeout);
+    spinTimeout = null;
+  }
+  isSpinning = false;
 
   currentCase = caseData;
   lastCaseId = caseId;
@@ -407,20 +417,35 @@ function spinRoulette() {
   });
 
   // Show result after animation
-  setTimeout(() => {
+  spinTimeout = setTimeout(() => {
+    spinTimeout = null;
     isSpinning = false;
+    // Если модальное окно уже закрыли (например, обманом состояния),
+    // доводим прокрутку до конца корректно, чтобы ничего не «залипло»
+    const modalOpen = document.getElementById('rouletteModal').classList.contains('active');
+    if (!modalOpen) {
+      currentWin = winItem;
+      showWinModal(winItem);
+      return;
+    }
+    document.getElementById('spinBtn').disabled = false;
     currentWin = winItem;
     showWinModal(winItem);
   }, 5500);
 }
 
 function closeRoulette() {
-  if (isSpinning) return;
+  // Окно можно закрыть в любой момент: если прокрутка ещё идёт,
+  // результат покажет модальное окно выигрыша, а не «зависший» экран
   document.getElementById('rouletteModal').classList.remove('active');
+  document.getElementById('spinBtn').disabled = false;
 }
 
 // ==================== WIN MODAL ====================
 function showWinModal(item) {
+  // Поднимаем окно выигрыша над контейнером конфетти (z-index: 4000),
+  // иначе кнопки под конфетти не кликабельны
+  document.getElementById('winOverlay').style.zIndex = '5000';
   document.getElementById('winItemImg').src = item.img;
   document.getElementById('winItemName').textContent = item.name;
   document.getElementById('winItemPrice').textContent = `${item.price} ₽`;
@@ -517,6 +542,7 @@ function previewItem(idx) {
   const item = inventory[idx];
   if (!item) return;
   currentWin = item;
+  document.getElementById('winOverlay').style.zIndex = '5000';
   document.getElementById('winItemImg').src = item.img;
   document.getElementById('winItemName').textContent = item.name;
   document.getElementById('winItemPrice').textContent = `${item.price} ₽`;
