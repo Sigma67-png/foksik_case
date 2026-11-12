@@ -1697,6 +1697,17 @@ html {
   bottom: 0;
   background: radial-gradient(circle at center, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
   animation: pulse 2s ease-in-out infinite;
+  /* ВАЖНО: декоративная подложка не должна перехватывать клики.
+     Без pointer-events:none она лежит поверх кнопок «Продать / В инвентарь /
+     Ещё раз» и делает их некликабельными (помогал только F5). */
+  pointer-events: none;
+}
+
+/* Контент окна выигрыша должен лежать поверх декоративной подложки (::before)
+   и гарантированно получать клики */
+.win-overlay .win-modal {
+  position: relative;
+  z-index: 1;
 }
 
 /* Smooth focus states for accessibility */
