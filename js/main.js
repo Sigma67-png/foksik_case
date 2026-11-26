@@ -1,201 +1,237 @@
+// ==================== CS2 CATALOG ====================
+const CATALOG = Array.isArray(window.CS2_SKINS) ? window.CS2_SKINS : [];
+const CATALOG_META = window.CS2_CATALOG_META || {
+  source: 'Steam Community Market',
+  currency: 'RUB',
+  updatedAt: '',
+};
+const CATALOG_BY_ID = new Map(CATALOG.map((item) => [item.id, item]));
+const STEAM_LISTING_BASE = 'https://steamcommunity.com/market/listings/730/';
+
+const CASE_HUE = {
+  1: 0,
+  2: 170,
+  3: 85,
+  4: 18,
+  5: 235,
+  6: 335,
+  7: 285,
+  8: 40,
+  9: 350,
+  10: 190,
+  11: 25,
+  12: 355,
+  13: 100,
+};
+
+const CASE_THEME = {
+  1: { accent: '#c8f94f', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3QV7aD7OP01IfbGDzPCmbsm4LU5GnvkzUsi4WvUmIqtci_CPQNyApsjE_lK7EfrhW545A' },
+  2: { accent: '#74d7ff', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frGxZvqX4avxuIabDXDPJxb534uQ-TH-3wk8isGqByIuoIHKRbQRyXpJ2W6dU5a9fuS_R' },
+  3: { accent: '#9bcf4f', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3YVvfD9aqVveKaQDDKSl7134bg_HH3hlBty6z7Vn9v6eXmeZgBxWJd0EflK7Efs4hZiKQ' },
+  4: { accent: '#c8f94f', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frHsVtqr8a_dsdKTAWDWVxLgjsrAwHSvgwEQk4m-ByYuqIC2eO1VyD5QiR_lK7EcxQQPYQA' },
+  5: { accent: '#b06cff', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3cV6vT9avBvefWWDDGTxbZ14rhsTX7qkE90sDiHwt2pdC-TblJ2DsB1QPlK7Ee9riHKAA' },
+  6: { accent: '#ff8a4c', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3UVu6P-MPQ0dKbCVzLGx7wgtbM6S3jhw0V25m-EnNj7JS7GaQ4nD8QiRflK7EfH0YGFHg' },
+  7: { accent: '#ff4fd8', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frHQV7qCra_JscqPGCzLCl78ktuAxHSzmzUh_sjvWzdqoI33CaQF2DscjR_lK7EeF3oM7TA' },
+  8: { accent: '#ffd166', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3IV6vSrbfw8eaiWCjWVkewgseM9TXyxl0wi6mSHn9-tIHqUbg5yDpEmEPlK7EcXFmSLsw' },
+  9: { accent: '#ff6b6b', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fqmwOuKD2PqI6caDBWDeUkO8uteM9SnDglklw6miEn9j6IHKfblNxA5pxW6dU5UH4LtBe' },
+  10: { accent: '#7cd9ff', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frHcVuPaoafU1JqiVWWSVkux15OQ8Giiylk0k5mvTnIqpd3PCaQIhWMYkE_lK7EcNeCKW-w' },
+  11: { accent: '#ffd166', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_fr3MVv_H4a6FucPPBWjDIkbdz4rg4Syyyxxsi5mzRntuvJCqVbwAgDZBwRPlK7EcZJ5GkQA' },
+  12: { accent: '#ff8a4c', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bj35VTqVBP4io_frHUVt_b6PfY1JfOSXDXJxbgjtLFqHnDqx0Qmtm_Vzdf4ICmUZlJ2C5F2TPlK7EdjN0FcPg' },
+  13: { accent: '#c8f94f', art: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGJKz2lu_XsnXwtmkJjSU91dh8bjz61TqQCKj0JfipHMN7aX2bfM9eaPDXT7Glbx1s7Y8HHHnw0sltWXSmYmqcH-UaAU-Sswn_16VNj0' },
+};
+
+function getCatalogSkin(id) {
+  return CATALOG_BY_ID.get(id) || null;
+}
+
+function steamListingUrl(marketHashName) {
+  return marketHashName
+    ? STEAM_LISTING_BASE + encodeURIComponent(marketHashName)
+    : '';
+}
+
+function makeDefaultWeights(count) {
+  if (count <= 0) return [];
+  if (count === 1) return [1];
+  const first = 38;
+  const last = 0.35;
+  const ratio = Math.pow(last / first, 1 / (count - 1));
+  return Array.from({ length: count }, (_, index) => first * Math.pow(ratio, index));
+}
+
+function buildCaseItems(ids, weights) {
+  const skins = ids
+    .map((id) => getCatalogSkin(id))
+    .filter(Boolean)
+    .slice()
+    .sort((a, b) => a.price - b.price);
+
+  const profile = weights && weights.length ? weights : makeDefaultWeights(skins.length);
+
+  return skins.map((skin, index) => ({
+    ...skin,
+    weight: profile[Math.min(index, profile.length - 1)] || 0.35,
+  }));
+}
+
+function casePrice(items) {
+  const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
+  if (!items.length || totalWeight <= 0) return 10;
+  const expectedValue = items.reduce(
+    (sum, item) => sum + item.price * (item.weight / totalWeight),
+    0
+  );
+  return Math.max(10, Math.round(expectedValue * 0.9));
+}
+
+function buildCase(definition) {
+  const items = buildCaseItems(definition.items, definition.weights || []);
+  const cover = getCatalogSkin(definition.cover) || items[items.length - 1];
+  const theme = CASE_THEME[definition.id] || {};
+  return {
+    id: definition.id,
+    name: definition.name,
+    desc: definition.desc,
+    badge: definition.badge || null,
+    category: definition.category,
+    accent: definition.accent || theme.accent || '#c8f94f',
+    hue: CASE_HUE[definition.id] || 0,
+    caseArt: definition.caseArt || theme.art || '',
+    img: cover ? cover.img : 'assets/placeholder.svg',
+    price: casePrice(items),
+    items,
+  };
+}
+
 // ==================== DATA ====================
 const CASES = [
-  // === БЮДЖЕТНЫЕ КЕЙСЫ (до 100₽) ===
-  {
-    id: 1, name: 'Стартовый кейс', desc: 'Базовые скины для новичков', price: 25,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19cca2676-cef2-4912-9b77-bbc95b1d78ad.png',
-    badge: 'hot', category: ['popular', 'cheap', 'budget'],
-    items: [
-      { name: 'P350 | Песчаный', price: 8, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 40 },
-      { name: 'G22 | Лес', price: 12, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 30 },
-      { name: 'UMP | Буря', price: 25, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 20 },
-      { name: 'AKR | Пламя', price: 65, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 8 },
-      { name: 'M4 | Дракон', price: 120, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 2 },
-    ]
-  },
-  {
-    id: 2, name: 'Ледяной кейс', desc: 'Морозные текстуры', price: 50,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png',
-    badge: null, category: ['cheap', 'budget'],
-    items: [
-      { name: 'P350 | Мороз', price: 15, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 35 },
-      { name: 'UMP | Айс', price: 35, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 28 },
-      { name: 'AKR | Лавина', price: 85, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 18 },
-      { name: 'M4 | Blizzard', price: 200, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 10 },
-      { name: 'AWM | Фрост', price: 650, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 4 },
-    ]
-  },
-  {
-    id: 3, name: 'Военный кейс', desc: 'Оружие со службы', price: 75,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png',
-    badge: 'new', category: ['cheap', 'budget', 'rifle'],
-    items: [
-      { name: 'M4A1 | Камуфляж', price: 25, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 35 },
-      { name: 'AKR | Тактика', price: 55, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 28 },
-      { name: 'FAMAS | Шторм', price: 95, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 18 },
-      { name: 'SCAR | Пустыня', price: 180, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 10 },
-      { name: 'AWM | Спецназ', price: 550, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 4 },
-    ]
-  },
-  
-  // === СРЕДНИЕ КЕЙСЫ (100-300₽) ===
-  {
-    id: 4, name: 'Стандартный кейс', desc: 'Баланс цены и качества', price: 100,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19cca2676-cef2-4912-9b77-bbc95b1d78ad.png',
-    badge: 'hot', category: ['popular', 'rifle'],
-    items: [
-      { name: 'P350 | Неоновый', price: 35, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 30 },
-      { name: 'UMP | Кибер', price: 70, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 25 },
-      { name: 'AKR | Феникс', price: 150, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 20 },
-      { name: 'M4A1 | Дракон', price: 320, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 12 },
-      { name: 'AWM | Лёд', price: 850, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 5 },
-      { name: 'Керамбит | Огонь', price: 2200, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 1 },
-    ]
-  },
-  {
-    id: 5, name: 'Кибер кейс', desc: 'Футуристические скины', price: 150,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png',
-    badge: 'new', category: ['popular', 'cheap'],
-    items: [
-      { name: 'P350 | Хром', price: 45, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 30 },
-      { name: 'G22 | Киберпанк', price: 90, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 25 },
-      { name: 'AKR | Кибер', price: 180, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 18 },
-      { name: 'M4 | Матрица', price: 380, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 12 },
-      { name: 'AWM | Хакер', price: 1200, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 6 },
-      { name: 'Бабочка | Неоновая', price: 3500, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 2 },
-    ]
-  },
-  {
-    id: 6, name: 'Кейс винтовок', desc: 'AKR, M4 и другие', price: 180,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png',
-    badge: 'hot', category: ['rifle', 'popular'],
-    items: [
-      { name: 'AKR | Стандарт', price: 55, rarity: 'common', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 30 },
-      { name: 'M4 | Шторм', price: 95, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 25 },
-      { name: 'AKR | Феникс', price: 220, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 18 },
-      { name: 'M4A1 | Золото', price: 480, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 10 },
-      { name: 'AWM | Легенда', price: 1400, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 5 },
-      { name: 'AKR | Император', price: 4200, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 2 },
-    ]
-  },
-  {
-    id: 7, name: 'Элитный кейс', desc: 'Для опытных игроков', price: 250,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/132c18a59-ccca-4163-a30e-2fc66a7de282.png',
-    badge: 'premium', category: ['premium'],
-    items: [
-      { name: 'USP | Титан', price: 85, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 28 },
-      { name: 'M4A1 | Самурай', price: 180, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 22 },
-      { name: 'AKR | Дракон', price: 420, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 15 },
-      { name: 'AWM | Феникс', price: 950, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 8 },
-      { name: 'Керамбит | Божество', price: 5500, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 3 },
-    ]
-  },
-  
-  // === ПРЕМИУМ КЕЙСЫ (300-1000₽) ===
-  {
-    id: 8, name: 'Премиум кейс', desc: 'Редкие и дорогие скины', price: 350,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/132c18a59-ccca-4163-a30e-2fc66a7de282.png',
-    badge: 'premium', category: ['premium'],
-    items: [
-      { name: 'G22 | Алмаз', price: 120, rarity: 'uncommon', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 25 },
-      { name: 'AKR | Феникс', price: 280, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 22 },
-      { name: 'M4A1 | Империал', price: 580, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 15 },
-      { name: 'AWM | Бессмертие', price: 1650, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 10 },
-      { name: 'М9 Байонет | Радуга', price: 6800, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 4 },
-    ]
-  },
-  {
-    id: 9, name: 'Кейс ножей', desc: 'Только холодное оружие!', price: 500,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png',
-    badge: 'new', category: ['knife', 'premium'],
-    items: [
-      { name: 'Штык-нож | Сталь', price: 350, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 30 },
-      { name: 'Керамбит | Пламя', price: 950, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 25 },
-      { name: 'М9 Байонет | Зуб', price: 2200, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 15 },
-      { name: 'Бабочка | Галактика', price: 7500, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 8 },
-      { name: 'Керамбит | Бог', price: 15000, rarity: 'ancient', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 2 },
-    ]
-  },
-  {
-    id: 10, name: 'Золотой кейс', desc: 'Эксклюзивные предметы', price: 750,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png',
-    badge: 'premium', category: ['premium', 'knife'],
-    items: [
-      { name: 'Desert Eagle | Золото', price: 280, rarity: 'rare', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 28 },
-      { name: 'AKR | Королевский', price: 680, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 22 },
-      { name: 'AWM | Мидас', price: 2400, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 12 },
-      { name: 'Бабочка | Золотая', price: 12000, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 6 },
-      { name: 'Керамбит | Феникс', price: 25000, rarity: 'ancient', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 2 },
-    ]
-  },
-  
-  // === ЭКСКЛЮЗИВНЫЕ КЕЙСЫ (1000₽+) ===
-  {
-    id: 11, name: 'Кейс дракона', desc: 'Легендарная мощь', price: 1200,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png',
-    badge: 'premium', category: ['premium'],
-    items: [
-      { name: 'M4A1 | Дракон', price: 580, rarity: 'epic', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/15f812e50-d116-421e-bf3c-2fb4b64f6c49.png', weight: 30 },
-      { name: 'AKR | Древний', price: 1450, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 20 },
-      { name: 'AWM | Драконий глаз', price: 4800, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1ee5faa33-a301-4c2a-af91-769ae95424c1.png', weight: 12 },
-      { name: 'Керамбит | Дракон', price: 18000, rarity: 'ancient', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 5 },
-      { name: 'Перчатки | Дракон', price: 45000, rarity: 'divine', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 1 },
-    ]
-  },
-  {
-    id: 12, name: 'Божественный кейс', desc: 'Предметы богов', price: 2500,
-    img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png',
-    badge: 'premium', category: ['premium'],
-    items: [
-      { name: 'USP | Олимп', price: 950, rarity: 'legendary', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/192900a58-8a75-4cd6-be22-4dd09e4f0898.png', weight: 25 },
-      { name: 'AKR | Зевс', price: 3200, rarity: 'contraband', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/1da6fbb40-6545-489a-b756-bf0919936c34.png', weight: 18 },
-      { name: 'М9 | Посейдон', price: 12500, rarity: 'ancient', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 10 },
-      { name: 'Бабочка | Аид', price: 35000, rarity: 'divine', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 4 },
-      { name: 'Перчатки | Титан', price: 85000, rarity: 'divine', img: 'https://image.qwenlm.ai/public_source/5eafffbd-60f4-4b43-8024-416d7b670e24/19e46f2f9-0dfd-44cd-8f86-c5772171eb7f.png', weight: 2 },
-    ]
-  },
+  buildCase({
+    id: 1, name: 'Стартовый кейс', desc: 'Базовые скины CS2 для старта',
+    badge: 'hot', category: ['popular', 'cheap', 'budget'], cover: 'ak-47-slate',
+    items: ['ak-47-slate', 'm4a4-magnesium', 'm4a1-s-basilisk', 'awp-atheris', 'glock-18-high-beam', 'usp-s-purple-ddpat', 'p250-sand-dune', 'mp9-airlock', 'mac-10-whitefish'],
+  }),
+  buildCase({
+    id: 2, name: 'Ледяной кейс', desc: 'Холодные и синие текстуры',
+    category: ['cheap', 'budget'], cover: 'awp-fever-dream',
+    items: ['awp-fever-dream', 'm4a1-s-blue-phosphor', 'usp-s-whiteout', 'ssg-08-abyss', 'glock-18-moonrise', 'mp9-airlock', 'mac-10-whitefish', 'dual-berettas-melondrama', 'five-seven-silver-quartz'],
+  }),
+  buildCase({
+    id: 3, name: 'Военный кейс', desc: 'Камуфляж и армейская классика',
+    badge: 'new', category: ['cheap', 'budget', 'rifle'], cover: 'awp-worm-god',
+    items: ['ak-47-slate', 'm4a4-magnesium', 'awp-worm-god', 'glock-18-steel-disruption', 'usp-s-stainless', 'famas-sergeant', 'galil-ar-blue-titanium', 'sg-553-army-sheen', 'negev-army-sheen', 'm249-submerged'],
+  }),
+  buildCase({
+    id: 4, name: 'Стандартный кейс', desc: 'Баланс популярных скинов',
+    badge: 'hot', category: ['popular', 'rifle'], cover: 'ak-47-redline',
+    items: ['ak-47-redline', 'm4a4-evil-daimyo', 'm4a1-s-nightmare', 'awp-neo-noir', 'desert-eagle-code-red', 'usp-s-caiman', 'glock-18-water-elemental', 'ssg-08-parallax', 'mp9-food-chain', 'mac-10-last-dive'],
+  }),
+  buildCase({
+    id: 5, name: 'Кибер кейс', desc: 'Неон, Printstream и цифровые текстуры',
+    badge: 'new', category: ['popular', 'cheap'], cover: 'm4a4-cyber-security',
+    items: ['m4a4-cyber-security', 'ak-47-neon-rider', 'm4a1-s-printstream', 'glock-18-neo-noir', 'usp-s-cortex', 'mac-10-disco-tech', 'mp9-hydra', 'cz75-auto-xiangliu', 'aug-chameleon', 'p90-asiimov'],
+  }),
+  buildCase({
+    id: 6, name: 'Кейс винтовок', desc: 'AK-47, M4, AWP и другие винтовки',
+    badge: 'hot', category: ['rifle', 'popular'], cover: 'm4a4-the-emperor',
+    items: ['ak-47-point-disarray', 'ak-47-asiimov', 'm4a4-desolate-space', 'm4a4-the-emperor', 'm4a1-s-golden-coil', 'm4a1-s-hyper-beast', 'awp-wildfire', 'awp-containment-breach', 'ssg-08-dragonfire', 'galil-ar-chatterbox'],
+  }),
+  buildCase({
+    id: 7, name: 'Элитный кейс', desc: 'Редкие и красивые скины',
+    badge: 'premium', category: ['premium'], cover: 'ak-47-the-empress',
+    items: ['ak-47-bloodsport', 'ak-47-the-empress', 'm4a4-neo-noir', 'm4a1-s-player-two', 'awp-hyper-beast', 'desert-eagle-kumicho-dragon', 'usp-s-the-traitor', 'glock-18-bullet-queen', 'mp9-mount-fuji', 'mac-10-neon-rider'],
+  }),
+  buildCase({
+    id: 8, name: 'Премиум кейс', desc: 'Топовые скины для коллекции',
+    badge: 'premium', category: ['premium'], cover: 'm4a4-asiimov',
+    items: ['ak-47-vulcan', 'm4a4-asiimov', 'm4a1-s-chantico-s-fire', 'awp-asiimov', 'desert-eagle-hypnotic', 'usp-s-neo-noir', 'glock-18-fade', 'ssg-08-blood-in-the-water', 'mp9-starlight-protector', 'mac-10-gold-brick'],
+  }),
+  buildCase({
+    id: 9, name: 'Кейс ножей', desc: 'Все 20 моделей ножей CS2',
+    badge: 'new', category: ['knife', 'premium'], cover: 'butterfly-knife-tiger-tooth',
+    items: ['bayonet-lore', 'butterfly-knife-tiger-tooth', 'falchion-knife-slaughter', 'flip-knife-marble-fade', 'gut-knife-doppler', 'karambit-fade', 'm9-bayonet-crimson-web', 'shadow-daggers-gamma-doppler', 'bowie-knife-case-hardened', 'huntsman-knife-ultraviolet', 'survival-knife-case-hardened', 'paracord-knife-fade', 'navaja-knife-doppler', 'nomad-knife-slaughter', 'skeleton-knife-fade', 'stiletto-knife-doppler', 'ursus-knife-marble-fade', 'talon-knife-tiger-tooth', 'classic-knife-blue-steel', 'kukri-knife-fade'],
+  }),
+  buildCase({
+    id: 10, name: 'Кейс перчаток', desc: '16 перчаток всех коллекций',
+    badge: 'premium', category: ['glove', 'premium'], cover: 'sport-gloves-vice',
+    items: ['sport-gloves-vice', 'sport-gloves-pandora-s-box', 'specialist-gloves-field-agent', 'specialist-gloves-fade', 'driver-gloves-king-snake', 'driver-gloves-crimson-weave', 'hand-wraps-cobalt-skulls', 'hand-wraps-overprint', 'moto-gloves-spearmint', 'moto-gloves-pow', 'bloodhound-gloves-charred', 'bloodhound-gloves-snakebite', 'broken-fang-gloves-jade', 'broken-fang-gloves-unhinged', 'hydra-gloves-emerald', 'hydra-gloves-case-hardened'],
+  }),
+  buildCase({
+    id: 11, name: 'Золотой кейс', desc: 'Золотые и огненные скины',
+    badge: 'premium', category: ['premium', 'knife'], cover: 'glock-18-fade',
+    items: ['glock-18-fade', 'desert-eagle-blaze', 'ak-47-case-hardened', 'm4a1-s-hot-rod', 'mac-10-amber-fade', 'r8-revolver-fade', 'butterfly-knife-tiger-tooth', 'talon-knife-tiger-tooth', 'driver-gloves-king-snake', 'moto-gloves-pow'],
+  }),
+  buildCase({
+    id: 12, name: 'Кейс дракона', desc: 'Драконы, огонь и легендарные дропы',
+    badge: 'premium', category: ['premium', 'knife'], cover: 'awp-oni-taiji',
+    items: ['m4a4-dragon-king', 'awp-oni-taiji', 'desert-eagle-kumicho-dragon', 'ssg-08-dragonfire', 'ak-47-fire-serpent', 'specialist-gloves-field-agent', 'karambit-fade', 'bowie-knife-case-hardened', 'm9-bayonet-crimson-web', 'sport-gloves-pandora-s-box'],
+  }),
+  buildCase({
+    id: 13, name: 'Божественный кейс', desc: 'Максимум ножей, перчаток и ультра-скинов',
+    badge: 'premium', category: ['premium', 'knife', 'glove'], cover: 'karambit-fade',
+    items: ['karambit-fade', 'butterfly-knife-tiger-tooth', 'talon-knife-tiger-tooth', 'skeleton-knife-fade', 'awp-chromatic-aberration', 'm4a4-poseidon', 'sport-gloves-vice', 'specialist-gloves-field-agent', 'driver-gloves-king-snake', 'hand-wraps-cobalt-skulls', 'moto-gloves-spearmint', 'hydra-gloves-emerald', 'broken-fang-gloves-jade'],
+  }),
 ];
 
 const BATTLES = [
-  { id: 1, title: 'Батл 2x', status: 'waiting', players: '1/2', price: 100, cases: [CASES[0], CASES[1]], host: 'PlayerOne' },
-  { id: 2, title: 'Батл 3x', status: 'waiting', players: '2/3', price: 225, cases: [CASES[2], CASES[3], CASES[4]], host: 'SkyWalker' },
-  { id: 3, title: 'Премиум батл', status: 'waiting', players: '1/2', price: 600, cases: [CASES[7], CASES[8]], host: 'NightOwl' },
-  { id: 4, title: 'Быстрый батл', status: 'waiting', players: '1/2', price: 75, cases: [CASES[0], CASES[2]], host: 'FastGamer' },
-  { id: 5, title: 'Ножевой батл', status: 'waiting', players: '1/2', price: 1000, cases: [CASES[8], CASES[9]], host: 'KnifeMaster' },
-  { id: 6, title: 'Элитный батл', status: 'waiting', players: '1/2', price: 2500, cases: [CASES[10], CASES[11]], host: 'DragonSlayer' },
-];
+  { id: 1, title: 'Батл 2x', status: 'waiting', players: '1/2', cases: [CASES[0], CASES[1]], host: 'PlayerOne' },
+  { id: 2, title: 'Батл 3x', status: 'waiting', players: '2/3', cases: [CASES[2], CASES[3], CASES[4]], host: 'SkyWalker' },
+  { id: 3, title: 'Премиум батл', status: 'waiting', players: '1/2', cases: [CASES[6], CASES[7]], host: 'NightOwl' },
+  { id: 4, title: 'Быстрый батл', status: 'waiting', players: '1/2', cases: [CASES[0], CASES[2]], host: 'FastGamer' },
+  { id: 5, title: 'Ножевой батл', status: 'waiting', players: '1/2', cases: [CASES[8], CASES[9]], host: 'KnifeMaster' },
+  { id: 6, title: 'Элитный батл', status: 'waiting', players: '1/2', cases: [CASES[12], CASES[10]], host: 'DragonSlayer' },
+].map((battle) => ({
+  ...battle,
+  price: Math.max(50, Math.round(battle.cases.reduce((sum, caseData) => sum + caseData.price, 0) / 2)),
+}));
 
 // ==================== CONSTANTS ====================
-const STORAGE_KEY = 'so2cases.demo.v1';
+const STORAGE_KEY = 'foksik.case.v1';
+const LEGACY_STORAGE_KEY = 'so2cases.demo.v1';
 const STATE_VERSION = 1;
 const DEFAULT_BALANCE = 1250;
 const MAX_DEPOSIT = 100000;
 const MAX_BALANCE = 10000000;
 
 const RARITY_LABELS = {
-  common: 'обычный',
-  uncommon: 'необычный',
-  rare: 'редкий',
-  epic: 'эпический',
-  legendary: 'легендарный',
-  contraband: 'запрещённый',
-  ancient: 'древний',
-  divine: 'божественный',
+  consumer: 'ширпотреб',
+  industrial: 'промышленный',
+  milspec: 'армейский',
+  restricted: 'запрещённый',
+  classified: 'засекреченный',
+  covert: 'тайный',
+  contraband: 'контрабанда',
+  extraordinary: 'исключительный',
 };
 
 const RARITY_COLORS = {
-  common: '#b0c3d9',
-  uncommon: '#5e98d9',
-  rare: '#4b69ff',
-  epic: '#8847ff',
-  legendary: '#d32ce6',
-  contraband: '#eb4b4b',
-  ancient: '#ff6b35',
-  divine: '#ffd700',
+  consumer: '#b0c3d9',
+  industrial: '#5e98d9',
+  milspec: '#4b69ff',
+  restricted: '#8847ff',
+  classified: '#d32ce6',
+  covert: '#eb4b4b',
+  contraband: '#e4ae39',
+  extraordinary: '#eb4b4b',
 };
+
+const LEGACY_RARITY_MAP = {
+  common: 'consumer',
+  uncommon: 'industrial',
+  rare: 'milspec',
+  epic: 'restricted',
+  legendary: 'classified',
+  ancient: 'covert',
+  divine: 'extraordinary',
+};
+
+function normalizeRarity(rarity) {
+  if (RARITY_LABELS[rarity]) return rarity;
+  return LEGACY_RARITY_MAP[rarity] || 'consumer';
+}
 
 const SECTION_IDS = {
   cases: 'casesSection',
+  skins: 'skinsSection',
   battle: 'battleSection',
   upgrade: 'upgradeSection',
   inventory: 'inventorySection',
@@ -210,13 +246,18 @@ let depositAmount = 0;
 let isSpinning = false;
 let spinTimer = null;
 let activeFilter = 'all';
+let activeSkinCategory = 'all';
+let activeSkinWeapon = 'all';
+let skinSearchQuery = '';
 let selectedUpgrade = null;
+let upgradeChancePct = 25;
+let upgradeTargets = [];
 let upgradeInProgress = false;
 let upgradeSpinTimer = null;
 let upgradeSpinGeneration = 0;
 let upgradeArrowRotation = 0;
 let pendingBattles = new Set();
-let demoGeneration = 0;
+let stateGeneration = 0;
 let activeModal = null;
 let modalReturnFocus = null;
 let notificationTimer = null;
@@ -259,10 +300,19 @@ function makeOwnedItem(raw) {
 
   return {
     id: createItemId(),
+    catalogId: typeof raw.catalogId === 'string'
+      ? raw.catalogId.slice(0, 120)
+      : (typeof raw.id === 'string' ? raw.id.slice(0, 120) : null),
+    baseName: typeof raw.baseName === 'string' ? raw.baseName.slice(0, 120) : null,
+    weapon: typeof raw.weapon === 'string' ? raw.weapon.slice(0, 60) : null,
+    group: typeof raw.group === 'string' ? raw.group.slice(0, 20) : null,
+    groupLabel: typeof raw.groupLabel === 'string' ? raw.groupLabel.slice(0, 40) : null,
     name,
     price: Math.round(price * 100) / 100,
-    rarity: RARITY_LABELS[raw.rarity] ? raw.rarity : 'common',
+    rarity: normalizeRarity(raw.rarity),
     img: isSafeImageUrl(raw.img) ? raw.img : 'assets/placeholder.svg',
+    wear: typeof raw.wear === 'string' ? raw.wear.slice(0, 40) : null,
+    marketHashName: typeof raw.marketHashName === 'string' ? raw.marketHashName.slice(0, 200) : null,
   };
 }
 
@@ -274,10 +324,17 @@ function normalizeSavedItem(raw) {
 
   return {
     id: typeof raw.id === 'string' && raw.id ? raw.id.slice(0, 120) : createItemId(),
+    catalogId: typeof raw.catalogId === 'string' ? raw.catalogId.slice(0, 120) : null,
+    baseName: typeof raw.baseName === 'string' ? raw.baseName.slice(0, 120) : null,
+    weapon: typeof raw.weapon === 'string' ? raw.weapon.slice(0, 60) : null,
+    group: typeof raw.group === 'string' ? raw.group.slice(0, 20) : null,
+    groupLabel: typeof raw.groupLabel === 'string' ? raw.groupLabel.slice(0, 40) : null,
     name,
     price: Math.round(price * 100) / 100,
-    rarity: RARITY_LABELS[raw.rarity] ? raw.rarity : 'common',
+    rarity: normalizeRarity(raw.rarity),
     img: isSafeImageUrl(raw.img) ? raw.img : 'assets/placeholder.svg',
+    wear: typeof raw.wear === 'string' ? raw.wear.slice(0, 40) : null,
+    marketHashName: typeof raw.marketHashName === 'string' ? raw.marketHashName.slice(0, 200) : null,
   };
 }
 
@@ -287,7 +344,8 @@ function defaultState() {
 
 function loadState() {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(STORAGE_KEY)
+      || window.localStorage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) return defaultState();
 
     const parsed = JSON.parse(raw);
@@ -317,7 +375,7 @@ function persistState() {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
   } catch (error) {
-    // В приватном режиме или при переполнении хранилища демо продолжает работать в памяти.
+    // В приватном режиме или при переполнении хранилища приложение продолжает работать в памяти.
   }
 }
 
@@ -326,6 +384,32 @@ function formatMoney(value) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+}
+
+function formatInt(value) {
+  return Math.round(Number(value)).toLocaleString('ru-RU', {
+    maximumFractionDigits: 0,
+  });
+}
+
+function getSectionScrollOffset() {
+  if (window.matchMedia('(max-width: 900px)').matches) return 14;
+  const nav = document.querySelector('.header-inner');
+  return nav ? nav.offsetHeight : 0;
+}
+
+function updateHeaderCollapse() {
+  const header = document.querySelector('.header');
+  const inner = document.querySelector('.header-inner');
+  if (!header || !inner) return;
+
+  if (window.matchMedia('(max-width: 900px)').matches) {
+    document.documentElement.style.setProperty('--header-collapse', '0px');
+    return;
+  }
+
+  const collapse = Math.max(0, header.offsetHeight - inner.offsetHeight);
+  document.documentElement.style.setProperty('--header-collapse', `${collapse}px`);
 }
 
 function prefersReducedMotion() {
@@ -344,8 +428,23 @@ function weightedPick(items) {
   return items[items.length - 1];
 }
 
+const RARITY_TEXT_COLORS = {
+  consumer: '#d7e4f0',
+  industrial: '#9cc4ea',
+  milspec: '#a7b4ff',
+  restricted: '#c8a8ff',
+  classified: '#ee9aef',
+  covert: '#ffa0a0',
+  contraband: '#f3cd82',
+  extraordinary: '#ffa0a0',
+};
+
 function getRarityColor(rarity) {
-  return RARITY_COLORS[rarity] || RARITY_COLORS.common;
+  return RARITY_COLORS[rarity] || RARITY_COLORS.consumer;
+}
+
+function getRarityTextColor(rarity) {
+  return RARITY_TEXT_COLORS[rarity] || RARITY_TEXT_COLORS.consumer;
 }
 
 function getActiveItems() {
@@ -363,23 +462,27 @@ function getActiveItems() {
   return items;
 }
 
-function getUpgradeTarget(source) {
-  const candidates = getActiveItems()
-    .filter((item) => item.price > source.price * 1.15)
-    .sort((a, b) => a.price - b.price);
+function getUpgradeTargets(source, chance) {
+  const safeChance = Math.max(1, Math.min(95, Number(chance) || 25));
+  const maxPrice = (source.price / (safeChance / 100)) * 0.98;
 
-  if (!candidates.length) return null;
-
-  const desiredPrice = source.price * 1.8;
-  return candidates.reduce((best, item) => (
-    Math.abs(item.price - desiredPrice) < Math.abs(best.price - desiredPrice) ? item : best
-  ), candidates[0]);
+  return CATALOG
+    .filter((item) => (
+      item.id !== source.catalogId
+      && item.price > source.price * 1.05
+      && item.price <= maxPrice
+    ))
+    .sort((a, b) => b.price - a.price)
+    .slice(0, 80);
 }
 
 // ==================== INIT ====================
 document.addEventListener('DOMContentLoaded', () => {
   persistState();
   bindEvents();
+  renderCatalogMeta();
+  renderCatalogFilters();
+  renderCatalog();
   renderCases('all');
   renderBattles();
   renderInventory();
@@ -388,14 +491,31 @@ document.addEventListener('DOMContentLoaded', () => {
   startLiveFeed();
   initializeDepositButtons();
   setUpgradeWheelChance(0);
+  renderUpgradeChanceChips();
+  renderUpgradeTargets();
   hideUpgradeResult();
   showSection('cases', { scroll: false });
+  updateHeaderCollapse();
+  window.addEventListener('resize', updateHeaderCollapse);
+  window.addEventListener('load', updateHeaderCollapse);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(updateHeaderCollapse).catch(() => {});
+  }
 });
 
 function bindEvents() {
   document.addEventListener('click', handleDocumentClick);
   document.addEventListener('keydown', handleGlobalKeydown);
   document.addEventListener('error', handleImageError, true);
+
+  $('skinSearch').addEventListener('input', (event) => {
+    skinSearchQuery = event.target.value.trim().toLowerCase();
+    renderCatalog();
+  });
+  $('skinWeaponFilter').addEventListener('change', (event) => {
+    activeSkinWeapon = event.target.value;
+    renderCatalog();
+  });
 
   $('rouletteClose').addEventListener('click', requestCloseRoulette);
   $('spinBtn').addEventListener('click', spinRoulette);
@@ -407,6 +527,7 @@ function bindEvents() {
   $('depositClose').addEventListener('click', closeDeposit);
   $('depositSubmit').addEventListener('click', doDeposit);
   $('depositCustom').addEventListener('input', () => {
+    depositAmount = 0;
     document.querySelectorAll('[data-deposit]').forEach((button) => {
       button.classList.remove('selected');
       button.setAttribute('aria-pressed', 'false');
@@ -447,7 +568,7 @@ function bindEvents() {
 
   $('resetCancel').addEventListener('click', () => closeModal($('resetModal')));
   $('resetClose').addEventListener('click', () => closeModal($('resetModal')));
-  $('resetConfirm').addEventListener('click', resetDemo);
+  $('resetConfirm').addEventListener('click', resetProgress);
 
   document.querySelectorAll('.js-modal').forEach((modal) => {
     modal.addEventListener('click', (event) => {
@@ -461,16 +582,29 @@ function bindEvents() {
   $('depositBtn').addEventListener('click', (event) => openDeposit(event.currentTarget));
   $('balanceBox').addEventListener('click', (event) => openDeposit(event.currentTarget));
 
-  document.querySelectorAll('[data-reset-demo]').forEach((button) => {
+  document.querySelectorAll('[data-reset-progress]').forEach((button) => {
     button.addEventListener('click', (event) => openResetDialog(event.currentTarget));
   });
 }
 
 function handleDocumentClick(event) {
+  if (event.target.closest('[data-scroll-top]')) {
+    event.preventDefault();
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    });
+    return;
+  }
+
   const sectionTrigger = event.target.closest('[data-section]');
   if (sectionTrigger) {
     event.preventDefault();
-    showSection(sectionTrigger.dataset.section);
+    const isLogo = sectionTrigger.classList.contains('logo');
+    showSection(sectionTrigger.dataset.section, { scroll: !isLogo });
+    if (isLogo) {
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    }
     return;
   }
 
@@ -482,6 +616,27 @@ function handleDocumentClick(event) {
       button.setAttribute('aria-pressed', String(button === filterButton));
     });
     renderCases(activeFilter);
+    return;
+  }
+
+  const skinCategoryButton = event.target.closest('[data-skin-category]');
+  if (skinCategoryButton) {
+    activeSkinCategory = skinCategoryButton.dataset.skinCategory;
+    activeSkinWeapon = 'all';
+    const weaponFilter = $('skinWeaponFilter');
+    if (weaponFilter) weaponFilter.value = 'all';
+    document.querySelectorAll('[data-skin-category]').forEach((button) => {
+      const isActive = button === skinCategoryButton;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+    });
+    renderCatalog();
+    return;
+  }
+
+  const catalogCard = event.target.closest('[data-preview-skin]');
+  if (catalogCard) {
+    previewCatalogItem(catalogCard.dataset.previewSkin, catalogCard);
     return;
   }
 
@@ -500,6 +655,18 @@ function handleDocumentClick(event) {
   const sellButton = event.target.closest('[data-sell-item]');
   if (sellButton) {
     sellItem(sellButton.dataset.sellItem);
+    return;
+  }
+
+  const chanceButton = event.target.closest('[data-upgrade-chance]');
+  if (chanceButton) {
+    setUpgradeChance(Number(chanceButton.dataset.upgradeChance));
+    return;
+  }
+
+  const targetButton = event.target.closest('[data-target-id]');
+  if (targetButton) {
+    selectUpgradeTarget(targetButton.dataset.targetId);
     return;
   }
 
@@ -616,6 +783,7 @@ function openModal(modal, initialFocus, returnFocus) {
     if (typeof target.focus === 'function') target.focus({ preventScroll: true });
   };
 
+  focusInside(focusTarget);
   window.requestAnimationFrame(() => {
     focusInside(focusTarget);
     window.setTimeout(() => focusInside(focusTarget), 60);
@@ -637,7 +805,7 @@ function closeModal(modal, options = {}) {
     if (restoreFocus) modalReturnFocus = null;
 
     if (restoreFocus && focusTarget && focusTarget.isConnected) {
-      window.requestAnimationFrame(() => focusTarget.focus({ preventScroll: true }));
+      focusTarget.focus({ preventScroll: true });
     }
   }
 }
@@ -671,9 +839,16 @@ function showSection(section, options = {}) {
     else button.removeAttribute('aria-current');
   });
 
+  if (section === 'skins') renderCatalog();
   if (section === 'inventory') renderInventory();
   if (scroll) {
-    window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    const top = sectionElement.getBoundingClientRect().top
+      + window.scrollY
+      - getSectionScrollOffset();
+    window.scrollTo({
+      top: Math.max(0, top),
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    });
   }
 }
 
@@ -682,13 +857,132 @@ function jumpToSection(section) {
   if (!sectionElement) return;
 
   showSection(section, { scroll: false });
-  const header = document.querySelector('.header');
-  const offset = (header ? header.offsetHeight : 0) + 14;
-  const top = sectionElement.getBoundingClientRect().top + window.scrollY - offset;
+  const top = sectionElement.getBoundingClientRect().top
+    + window.scrollY
+    - getSectionScrollOffset();
 
   window.scrollTo({ top, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
   sectionElement.setAttribute('tabindex', '-1');
   window.requestAnimationFrame(() => sectionElement.focus({ preventScroll: true }));
+}
+
+// ==================== SKINS CATALOG ====================
+const SKIN_GROUP_LABELS = {
+  rifles: 'винтовка',
+  pistols: 'пистолет',
+  smg: 'пистолет-пулемёт',
+  heavy: 'тяжёлое',
+  knives: 'нож',
+  gloves: 'перчатки',
+};
+
+function formatSnapshotDate(value) {
+  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return match ? `${match[3]}.${match[2]}.${match[1]}` : String(value || '');
+}
+
+function renderCatalogMeta() {
+  const count = CATALOG.length;
+  const catalogCount = $('skinsCount');
+  const updated = $('skinsUpdated');
+
+  if (catalogCount) catalogCount.textContent = `${count} ${pluralizeItems(count)}`;
+  if (updated) {
+    const date = formatSnapshotDate(CATALOG_META.updatedAt);
+    updated.textContent = `Цены Steam Market${date ? ` · ${date}` : ''} · RUB`;
+  }
+}
+
+function renderCatalogFilters() {
+  const select = $('skinWeaponFilter');
+  if (!select) return;
+
+  const weapons = new Map();
+  CATALOG.forEach((item) => {
+    if (!weapons.has(item.weapon)) {
+      weapons.set(item.weapon, { count: 0, popular: Boolean(item.popular) });
+    }
+    const entry = weapons.get(item.weapon);
+    entry.count += 1;
+    entry.popular = entry.popular || Boolean(item.popular);
+  });
+
+  const options = [...weapons.entries()]
+    .sort((a, b) => {
+      if (a[1].popular !== b[1].popular) return a[1].popular ? -1 : 1;
+      return a[0].localeCompare(b[0], 'ru');
+    })
+    .map(([weapon, entry]) => (
+      `<option value="${escapeHtml(weapon)}">${escapeHtml(weapon)} · ${entry.count}</option>`
+    ))
+    .join('');
+
+  select.innerHTML = `<option value="all">Все оружия · ${CATALOG.length}</option>${options}`;
+}
+
+function renderCatalog() {
+  const grid = $('skinsGrid');
+  const empty = $('skinsEmpty');
+  const count = $('skinsCount');
+  if (!grid || !empty) return;
+
+  const filtered = CATALOG.filter((item) => {
+    if (activeSkinCategory !== 'all' && item.group !== activeSkinCategory) return false;
+    if (activeSkinWeapon !== 'all' && item.weapon !== activeSkinWeapon) return false;
+    if (skinSearchQuery) {
+      const haystack = `${item.name} ${item.wear} ${item.weapon}`.toLowerCase();
+      if (!haystack.includes(skinSearchQuery)) return false;
+    }
+    return true;
+  });
+
+  if (count) {
+    count.textContent = `${filtered.length} ${pluralizeItems(filtered.length)}`;
+  }
+
+  if (!filtered.length) {
+    grid.innerHTML = '';
+    grid.hidden = true;
+    empty.hidden = false;
+    return;
+  }
+
+  grid.hidden = false;
+  empty.hidden = true;
+  grid.innerHTML = filtered.map(skinCardTemplate).join('');
+}
+
+function skinCardTemplate(item) {
+  const rarityLabel = RARITY_LABELS[item.rarity] || '';
+  const groupLabel = item.groupLabel || SKIN_GROUP_LABELS[item.group] || '';
+  const displayBase = item.baseName || item.name;
+  const parts = displayBase.split(' | ');
+  const pattern = parts.length > 1 ? parts.slice(1).join(' | ') : displayBase;
+
+  return `
+    <button class="skin-card" type="button" data-preview-skin="${escapeHtml(item.id)}"
+      style="--rarity:${getRarityColor(item.rarity)};--rarity-text:${getRarityTextColor(item.rarity)}">
+      <span class="skin-card-rarity" aria-hidden="true"></span>
+      <span class="skin-card-img-wrap">
+        <img class="skin-card-img" src="${escapeHtml(item.img)}" alt="" loading="lazy">
+      </span>
+      <span class="skin-card-body">
+        <span class="skin-card-weapon">${escapeHtml(item.weapon)} · ${escapeHtml(groupLabel)}</span>
+        <span class="skin-card-name">${escapeHtml(pattern)}</span>
+        <span class="skin-card-wear">${escapeHtml(item.wear)}</span>
+        <span class="skin-card-meta">
+          <span class="skin-card-price">${formatMoney(item.price)} ₽</span>
+          <span class="skin-card-rarity-label">${escapeHtml(rarityLabel)}</span>
+        </span>
+      </span>
+    </button>
+  `;
+}
+
+function previewCatalogItem(itemId, trigger) {
+  const item = getCatalogSkin(itemId);
+  if (!item) return;
+  showItemPreview(item, trigger);
 }
 
 // ==================== CASES ====================
@@ -704,22 +998,19 @@ function renderCases(filter) {
   }
 
   grid.innerHTML = filtered.map((caseData) => {
-    const badge = caseData.badge === 'hot'
-      ? '<span class="case-card-badge badge-hot">🔥 Хит</span>'
-      : caseData.badge === 'new'
-        ? '<span class="case-card-badge badge-new">✨ Новинка</span>'
-        : caseData.badge === 'premium'
-          ? '<span class="case-card-badge badge-premium">💎 Премиум</span>'
-          : '';
-
     return `
-      <button class="case-card" type="button" data-case-id="${caseData.id}">
-        ${badge}
-        <img class="case-card-img" src="${escapeHtml(caseData.img)}" alt="" loading="lazy">
-        <span class="case-card-name">${escapeHtml(caseData.name)}</span>
-        <span class="case-card-desc">${escapeHtml(caseData.desc)}</span>
+      <button class="case-card" type="button" data-case-id="${caseData.id}" style="--case-accent:${caseData.accent};--case-hue:${caseData.hue}deg">
+        <span class="case-card-head">
+          <span class="case-card-name">${escapeHtml(caseData.name)}</span>
+          <span class="case-card-count">${caseData.items.length} ${pluralizeItems(caseData.items.length)}</span>
+        </span>
+        <span class="case-card-media">
+          <span class="case-card-glow" aria-hidden="true"></span>
+          <img class="case-card-skin" src="${escapeHtml(caseData.img)}" alt="">
+          ${caseData.caseArt ? `<img class="case-card-case" src="${escapeHtml(caseData.caseArt)}" alt="">` : ''}
+        </span>
         <span class="case-card-footer">
-          <span class="case-price"><span class="coin" aria-hidden="true">₽</span>${caseData.price}</span>
+          <span class="case-price"><span class="coin" aria-hidden="true">₽</span>${formatInt(caseData.price)}</span>
           <span class="case-open-btn" aria-hidden="true">Открыть</span>
         </span>
       </button>
@@ -738,7 +1029,7 @@ function openCase(caseId, trigger) {
 
   $('rouletteTitle').textContent = `Открытие: ${caseData.name}`;
   $('rouletteCaseName').textContent = caseData.name;
-  $('rouletteCasePrice').textContent = caseData.price;
+  $('rouletteCasePrice').textContent = formatInt(caseData.price);
   renderRouletteTrack(caseData);
 
   const track = $('rouletteTrack');
@@ -752,9 +1043,9 @@ function openCase(caseId, trigger) {
 function rouletteItemTemplate(item) {
   return `
     <div class="roulette-item">
-      <img class="roulette-item-img" src="${escapeHtml(item.img)}" alt="" loading="lazy">
+      <img class="roulette-item-img" src="${escapeHtml(item.img)}" alt="">
       <div class="roulette-item-name">${escapeHtml(item.name)}</div>
-      <div class="roulette-item-price">${item.price} ₽</div>
+      <div class="roulette-item-price">${formatMoney(item.price)} ₽</div>
       <div class="roulette-item-rarity" style="background:${getRarityColor(item.rarity)}"></div>
     </div>
   `;
@@ -773,14 +1064,14 @@ function updateSpinButton() {
   const button = $('spinBtn');
   const canAfford = appState.balance >= currentCase.price;
   button.disabled = !canAfford || isSpinning;
-  button.textContent = canAfford ? '🎰 Открыть кейс' : 'Недостаточно демо-средств';
+  button.textContent = canAfford ? '🎰 Открыть кейс' : 'Недостаточно средств';
 }
 
 function spinRoulette() {
   if (!currentCase || isSpinning) return;
 
   if (appState.balance < currentCase.price) {
-    showNotification('Недостаточно демо-средств. Откройте демо-пополнение.', 'error');
+    showNotification('Недостаточно средств. Пополните баланс.', 'error');
     return;
   }
 
@@ -854,7 +1145,7 @@ function showWinModal(item) {
   $('winItemImg').src = item.img;
   $('winItemImg').alt = item.name;
   $('winItemName').textContent = item.name;
-  $('winItemPrice').textContent = `${item.price} ₽`;
+  $('winItemPrice').textContent = `${formatMoney(item.price)} ₽`;
   openModal($('winOverlay'), $('winKeep'));
   if (!prefersReducedMotion()) createConfetti();
 }
@@ -913,7 +1204,7 @@ function renderInventory() {
       <div class="empty-state">
         <div class="empty-state-icon" aria-hidden="true">🎒</div>
         <h3>Инвентарь пуст</h3>
-        <p>Откройте кейс, чтобы получить первый демо-скин.</p>
+        <p>Откройте кейс, чтобы получить первый скин.</p>
         <button class="primary-btn" type="button" data-open-cases>Перейти к кейсам</button>
       </div>
     `;
@@ -926,7 +1217,7 @@ function renderInventory() {
       <div class="inv-card-rarity" style="background:${getRarityColor(item.rarity)}"></div>
       <img class="inv-card-img" src="${escapeHtml(item.img)}" alt="${escapeHtml(item.name)}" loading="lazy">
       <div class="inv-card-name">${escapeHtml(item.name)}</div>
-      <div class="inv-card-rarity-label" style="color:${getRarityColor(item.rarity)}">${escapeHtml(RARITY_LABELS[item.rarity] || 'обычный')}</div>
+      <div class="inv-card-rarity-label" style="color:${getRarityTextColor(item.rarity)}">${escapeHtml(RARITY_LABELS[item.rarity] || 'обычный')}</div>
       <div class="inv-card-price">${formatMoney(item.price)} ₽</div>
       <div class="inv-card-actions">
         <button class="inv-btn inv-btn-preview" type="button" data-preview-item="${escapeHtml(item.id)}">Просмотр</button>
@@ -952,6 +1243,9 @@ function sellItem(itemId) {
   const item = appState.inventory[index];
   appState.inventory.splice(index, 1);
   appState.balance = Math.min(appState.balance + item.price, MAX_BALANCE);
+  if (selectedUpgrade && selectedUpgrade.sourceId === itemId) {
+    resetUpgradeUI('Предмет продан. Выберите другой скин для апгрейда.');
+  }
   persistState();
   updateBalanceUI();
   renderInventory();
@@ -981,6 +1275,9 @@ function sellAll() {
 
   appState.balance = Math.min(appState.balance + total, MAX_BALANCE);
   appState.inventory = [];
+  if (selectedUpgrade) {
+    resetUpgradeUI('Инвентарь продан. Выберите новый скин для апгрейда.');
+  }
   persistState();
   updateBalanceUI();
   renderInventory();
@@ -991,13 +1288,33 @@ function sellAll() {
 function previewItem(itemId, trigger) {
   const item = appState.inventory.find((entry) => entry.id === itemId);
   if (!item) return;
+  showItemPreview(item, trigger);
+}
+
+function showItemPreview(item, trigger) {
+  const groupLabel = item.groupLabel || SKIN_GROUP_LABELS[item.group] || '';
+  const meta = [item.weapon, item.wear, groupLabel].filter(Boolean).join(' · ');
+  const steamLink = $('previewSteamLink');
 
   $('previewImg').src = item.img;
   $('previewImg').alt = item.name;
   $('previewName').textContent = item.name;
   $('previewPrice').textContent = `${formatMoney(item.price)} ₽`;
   $('previewRarity').textContent = RARITY_LABELS[item.rarity] || 'обычный';
-  $('previewRarity').style.color = getRarityColor(item.rarity);
+  $('previewRarity').style.color = getRarityTextColor(item.rarity);
+  $('previewMeta').textContent = meta || 'Цена Steam Market';
+
+  if (steamLink) {
+    const url = steamListingUrl(item.marketHashName);
+    if (url) {
+      steamLink.href = url;
+      steamLink.hidden = false;
+    } else {
+      steamLink.removeAttribute('href');
+      steamLink.hidden = true;
+    }
+  }
+
   openModal($('previewModal'), $('previewClose'), trigger);
 }
 
@@ -1022,6 +1339,11 @@ function renderUpgradePicker() {
   const count = $('upgradePickerCount');
   if (!grid || !empty || !count) return;
 
+  if (!upgradeInProgress && selectedUpgrade
+    && !appState.inventory.some((item) => item.id === selectedUpgrade.sourceId)) {
+    resetUpgradeUI('Предмет больше недоступен. Выберите другой скин.');
+  }
+
   count.textContent = `${appState.inventory.length} ${pluralizeItems(appState.inventory.length)}`;
 
   if (!appState.inventory.length) {
@@ -1034,10 +1356,7 @@ function renderUpgradePicker() {
   empty.hidden = true;
   grid.hidden = false;
   grid.innerHTML = appState.inventory.map((item) => {
-    const target = getUpgradeTarget(item);
-    const chance = target
-      ? Math.max(1, Math.min(85, Math.round((item.price / target.price) * 100)))
-      : null;
+    const targetCount = getUpgradeTargets(item, upgradeChancePct).length;
     const selected = Boolean(selectedUpgrade && selectedUpgrade.sourceId === item.id);
 
     return `
@@ -1045,13 +1364,12 @@ function renderUpgradePicker() {
         type="button"
         data-source-id="${escapeHtml(item.id)}"
         aria-pressed="${selected}"
-        ${target ? '' : 'disabled'}
         style="--rarity:${getRarityColor(item.rarity)}">
         <span class="upgrade-pick-img"><img src="${escapeHtml(item.img)}" alt="" loading="lazy"></span>
         <span class="upgrade-pick-name">${escapeHtml(item.name)}</span>
         <span class="upgrade-pick-meta">
           <span class="upgrade-pick-price">${formatMoney(item.price)} ₽</span>
-          <span class="upgrade-pick-chance">${target ? `${chance}%` : 'нет цели'}</span>
+          <span class="upgrade-pick-chance">${targetCount ? `${targetCount} целей` : 'нет целей'}</span>
         </span>
       </button>
     `;
@@ -1071,27 +1389,148 @@ function markUpgradePickerSelection() {
   });
 }
 
+function pluralizeTargets(count) {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'цель';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'цели';
+  return 'целей';
+}
+
+function renderUpgradeChanceChips() {
+  document.querySelectorAll('[data-upgrade-chance]').forEach((button) => {
+    const isActive = Number(button.dataset.upgradeChance) === upgradeChancePct;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+  });
+}
+
+function renderUpgradeTargets() {
+  const grid = $('upgradeTargetGrid');
+  const empty = $('upgradeTargetEmpty');
+  const count = $('upgradeTargetCount');
+  if (!grid || !empty || !count) return;
+
+  if (!selectedUpgrade) {
+    upgradeTargets = [];
+    grid.innerHTML = '';
+    grid.hidden = true;
+    empty.hidden = false;
+    empty.innerHTML = `
+      <div>
+        <strong>Сначала выбери свой скин</strong>
+        <span>Потом здесь появятся цели под выбранный шанс.</span>
+      </div>
+    `;
+    count.textContent = '0 целей';
+    return;
+  }
+
+  const source = selectedUpgrade.source;
+  upgradeTargets = getUpgradeTargets(source, upgradeChancePct);
+  count.textContent = `${upgradeTargets.length} ${pluralizeTargets(upgradeTargets.length)}`;
+
+  if (!upgradeTargets.length) {
+    grid.innerHTML = '';
+    grid.hidden = true;
+    empty.hidden = false;
+    empty.innerHTML = `
+      <div>
+        <strong>Нет целей для ${upgradeChancePct}%</strong>
+        <span>Уменьши шанс или выбери другой скин.</span>
+      </div>
+    `;
+    return;
+  }
+
+  empty.hidden = true;
+  grid.hidden = false;
+  grid.innerHTML = upgradeTargets.map((item) => {
+    const selected = Boolean(selectedUpgrade.target && selectedUpgrade.target.id === item.id);
+    const multiplier = (item.price / source.price).toFixed(1);
+
+    return `
+      <button class="upgrade-pick${selected ? ' is-selected' : ''}"
+        type="button"
+        data-target-id="${escapeHtml(item.id)}"
+        aria-pressed="${selected}"
+        style="--rarity:${getRarityColor(item.rarity)}">
+        <span class="upgrade-pick-img"><img src="${escapeHtml(item.img)}" alt="" loading="lazy"></span>
+        <span class="upgrade-pick-name">${escapeHtml(item.name)}</span>
+        <span class="upgrade-pick-meta">
+          <span class="upgrade-pick-price">${formatMoney(item.price)} ₽</span>
+          <span class="upgrade-pick-chance">×${multiplier}</span>
+        </span>
+      </button>
+    `;
+  }).join('');
+}
+
 function selectUpgradeSource(itemId) {
   if (upgradeInProgress) return;
   const source = appState.inventory.find((item) => item.id === itemId);
   if (!source) return;
 
-  const target = getUpgradeTarget(source);
-  if (!target) {
-    showNotification('Для этого предмета нет более дорогой цели в демо.', 'error');
-    return;
-  }
-
-  const chance = Math.max(1, Math.min(85, Math.round((source.price / target.price) * 100)));
+  const targets = getUpgradeTargets(source, upgradeChancePct);
   selectedUpgrade = {
     sourceId: source.id,
     source: { ...source },
-    target: { ...target },
-    chance,
+    target: targets.length ? { ...targets[0] } : null,
+    chance: upgradeChancePct,
   };
 
   renderUpgradeSelection();
   markUpgradePickerSelection();
+
+  if (!targets.length) {
+    showNotification(`Для шанса ${upgradeChancePct}% нет целей. Выбери другой шанс.`, 'error');
+  }
+}
+
+function selectUpgradeTarget(itemId) {
+  if (!selectedUpgrade || upgradeInProgress) return;
+
+  const target = upgradeTargets.find((item) => item.id === itemId)
+    || getCatalogSkin(itemId);
+  if (!target) return;
+
+  const eligible = getUpgradeTargets(selectedUpgrade.source, upgradeChancePct);
+  if (!eligible.some((item) => item.id === itemId)) {
+    showNotification('Эта цель недоступна для выбранного шанса.', 'error');
+    return;
+  }
+
+  selectedUpgrade.target = { ...target };
+  selectedUpgrade.chance = upgradeChancePct;
+  renderUpgradeSelection();
+}
+
+function setUpgradeChance(chance) {
+  const allowed = [5, 10, 25, 50, 75, 90];
+  if (!allowed.includes(chance)) return;
+
+  upgradeChancePct = chance;
+  renderUpgradeChanceChips();
+
+  if (!selectedUpgrade) {
+    renderUpgradePicker();
+    renderUpgradeTargets();
+    return;
+  }
+
+  const targets = getUpgradeTargets(selectedUpgrade.source, chance);
+  const currentTargetId = selectedUpgrade.target ? selectedUpgrade.target.id : null;
+  const keepCurrent = currentTargetId && targets.some((item) => item.id === currentTargetId);
+  selectedUpgrade = {
+    ...selectedUpgrade,
+    chance,
+    target: keepCurrent
+      ? selectedUpgrade.target
+      : (targets.length ? { ...targets[0] } : null),
+  };
+
+  renderUpgradeSelection();
+  renderUpgradePicker();
 }
 
 function setUpgradeWheelChance(chance) {
@@ -1166,7 +1605,6 @@ function renderUpgradeSelection() {
   const { source, target, chance } = selectedUpgrade;
 
   $('upgradeFrom').classList.add('filled');
-  $('upgradeFrom').setAttribute('aria-label', `Выбран ${source.name}. Нажмите, чтобы сменить предмет`);
   $('upgradeFrom').innerHTML = `
     <div class="upgrade-slot-label">Твой скин</div>
     <img src="${escapeHtml(source.img)}" alt="">
@@ -1175,17 +1613,27 @@ function renderUpgradeSelection() {
     <div class="upgrade-slot-change">Нажмите, чтобы сменить</div>
   `;
 
-  $('upgradeTo').classList.add('filled');
-  $('upgradeTo').innerHTML = `
-    <div class="upgrade-slot-label">Желаемый скин</div>
-    <img src="${escapeHtml(target.img)}" alt="">
-    <div class="upgrade-slot-name">${escapeHtml(target.name)}</div>
-    <div class="upgrade-slot-price">${formatMoney(target.price)} ₽</div>
-  `;
+  if (target) {
+    $('upgradeTo').classList.add('filled');
+    $('upgradeTo').innerHTML = `
+      <div class="upgrade-slot-label">Желаемый скин</div>
+      <img src="${escapeHtml(target.img)}" alt="">
+      <div class="upgrade-slot-name">${escapeHtml(target.name)}</div>
+      <div class="upgrade-slot-price">${formatMoney(target.price)} ₽</div>
+    `;
+    $('upgradeChanceLabel').textContent = 'Цель и шанс выбраны. Крути колесо: при неудаче предмет сгорает.';
+  } else {
+    $('upgradeTo').classList.remove('filled');
+    $('upgradeTo').innerHTML = `
+      <div class="upgrade-slot-label">Желаемый скин</div>
+      <div class="upgrade-slot-placeholder" aria-hidden="true">—</div>
+      <div class="upgrade-slot-hint">Для этого шанса целей нет. Выбери шанс ниже.</div>
+    `;
+    $('upgradeChanceLabel').textContent = `Для шанса ${chance}% нет целей. Уменьши шанс.`;
+  }
 
   $('upgradeChance').classList.remove('is-empty');
   $('upgradeChance').textContent = `${chance}%`;
-  $('upgradeChanceLabel').textContent = 'Шанс успеха зафиксирован. Крути колесо: при неудаче предмет сгорает.';
   setUpgradeWheelChance(chance);
   hideUpgradeResult();
   resetWheelArrow();
@@ -1194,8 +1642,10 @@ function renderUpgradeSelection() {
   if (wrap) wrap.classList.remove('is-spinning', 'is-success', 'is-fail');
   const button = $('upgradeBtn');
   button.classList.remove('is-spinning');
-  button.disabled = false;
-  setUpgradeButtonLabel('Крутить колесо');
+  button.disabled = !target;
+  setUpgradeButtonLabel(target ? 'Крутить колесо' : 'Нет цели');
+  renderUpgradeChanceChips();
+  renderUpgradeTargets();
   markUpgradePickerSelection();
 }
 
@@ -1205,7 +1655,6 @@ function resetUpgradeUI(message = 'Выберите предмет из инве
   hideUpgradeResult();
 
   $('upgradeFrom').classList.remove('filled');
-  $('upgradeFrom').setAttribute('aria-label', 'Выбрать предмет для апгрейда');
   $('upgradeFrom').innerHTML = `
     <div class="upgrade-slot-label">Твой скин</div>
     <div class="upgrade-slot-placeholder" aria-hidden="true">+</div>
@@ -1216,7 +1665,7 @@ function resetUpgradeUI(message = 'Выберите предмет из инве
   $('upgradeTo').innerHTML = `
     <div class="upgrade-slot-label">Желаемый скин</div>
     <div class="upgrade-slot-placeholder" aria-hidden="true">?</div>
-    <div class="upgrade-slot-hint">Цель появится после выбора</div>
+    <div class="upgrade-slot-hint">Выбери цель в списке ниже</div>
   `;
 
   $('upgradeChance').textContent = '—';
@@ -1227,6 +1676,8 @@ function resetUpgradeUI(message = 'Выберите предмет из инве
   button.disabled = true;
   button.classList.remove('is-spinning');
   setUpgradeButtonLabel('Крутить колесо');
+  renderUpgradeChanceChips();
+  renderUpgradeTargets();
   markUpgradePickerSelection();
 }
 
@@ -1238,7 +1689,7 @@ function renderUpgradeResult(success, source, target) {
   result.classList.toggle('is-success', success);
   result.classList.toggle('is-fail', !success);
 
-  $('upgradeResultEyebrow').textContent = success ? 'FOKSIK APPROVED' : 'FOKSIK WHEEL';
+  $('upgradeResultEyebrow').textContent = success ? 'UPGRADE WON' : 'UPGRADE';
   $('upgradeResultTitle').textContent = success ? 'ВОТ ЭТО ДРОП' : 'МИМО';
   $('upgradeResultImg').src = success ? target.img : source.img;
   $('upgradeResultImg').alt = success ? target.name : source.name;
@@ -1247,12 +1698,12 @@ function renderUpgradeResult(success, source, target) {
     ? `${formatMoney(target.price)} ₽`
     : 'предмет сгорел';
   $('upgradeResultNote').textContent = success
-    ? 'Уже в инвентаре · это демо'
+    ? 'Уже в инвентаре'
     : 'Крути ещё · собери новый дроп';
 }
 
 function doUpgrade() {
-  if (!selectedUpgrade || upgradeInProgress) return;
+  if (!selectedUpgrade || !selectedUpgrade.target || upgradeInProgress) return;
 
   const { source, target, chance } = selectedUpgrade;
   const index = appState.inventory.findIndex((item) => item.id === selectedUpgrade.sourceId);
@@ -1311,12 +1762,12 @@ function doUpgrade() {
   persistState();
   renderInventory();
 
-  const generation = demoGeneration;
+  const generation = stateGeneration;
   const spinId = ++upgradeSpinGeneration;
   const duration = prefersReducedMotion() ? 140 : 4700;
 
   upgradeSpinTimer = window.setTimeout(() => {
-    if (spinId !== upgradeSpinGeneration || generation !== demoGeneration) return;
+    if (spinId !== upgradeSpinGeneration || generation !== stateGeneration) return;
     upgradeSpinTimer = null;
     finishUpgrade({ success, source, target, chance });
   }, duration);
@@ -1324,6 +1775,7 @@ function doUpgrade() {
 
 function finishUpgrade({ success, source, target }) {
   upgradeInProgress = false;
+  selectedUpgrade = null;
 
   if (success) {
     const wonItem = makeOwnedItem(target);
@@ -1332,7 +1784,6 @@ function finishUpgrade({ success, source, target }) {
     renderInventory();
   }
 
-  selectedUpgrade = null;
   markUpgradePickerSelection();
   const button = $('upgradeBtn');
   const wrap = $('wheelWrap');
@@ -1345,7 +1796,6 @@ function finishUpgrade({ success, source, target }) {
   }
 
   $('upgradeFrom').classList.remove('filled');
-  $('upgradeFrom').setAttribute('aria-label', 'Выбрать предмет для апгрейда');
   $('upgradeFrom').innerHTML = `
     <div class="upgrade-slot-label">Твой скин</div>
     <div class="upgrade-slot-placeholder" aria-hidden="true">+</div>
@@ -1356,12 +1806,17 @@ function finishUpgrade({ success, source, target }) {
   $('upgradeTo').innerHTML = `
     <div class="upgrade-slot-label">Желаемый скин</div>
     <div class="upgrade-slot-placeholder" aria-hidden="true">?</div>
-    <div class="upgrade-slot-hint">Цель появится после выбора</div>
+    <div class="upgrade-slot-hint">Выбери цель в списке ниже</div>
   `;
 
   $('upgradeChanceLabel').textContent = success
     ? `Успех: ${target.name} добавлен в инвентарь.`
     : `Неудача: ${source.name} потерян.`;
+  $('upgradeChance').textContent = '—';
+  $('upgradeChance').classList.add('is-empty');
+  setUpgradeWheelChance(0);
+  renderUpgradeChanceChips();
+  renderUpgradeTargets();
   renderUpgradeResult(success, source, target);
 
   if (success) {
@@ -1412,22 +1867,23 @@ function selectDeposit(amount, element) {
 function doDeposit() {
   const customValue = Number($('depositCustom').value);
   const amount = Number.isFinite(customValue) && customValue > 0 ? customValue : depositAmount;
+  const wholeAmount = Math.floor(amount);
 
-  if (!Number.isFinite(amount) || amount <= 0) {
-    showNotification('Введите сумму демо-пополнения.', 'error');
+  if (!Number.isFinite(amount) || wholeAmount < 1) {
+    showNotification('Введите сумму пополнения от 1 ₽.', 'error');
     return;
   }
 
-  if (amount > MAX_DEPOSIT) {
-    showNotification(`Максимум за одну операцию — ${formatMoney(MAX_DEPOSIT)} ₽.`, 'error');
+  if (wholeAmount > MAX_DEPOSIT) {
+    showNotification(`Максимум за одну операцию — ${formatInt(MAX_DEPOSIT)} ₽.`, 'error');
     return;
   }
 
-  appState.balance = Math.min(appState.balance + Math.floor(amount), MAX_BALANCE);
+  appState.balance = Math.min(appState.balance + wholeAmount, MAX_BALANCE);
   persistState();
   updateBalanceUI();
   closeDeposit();
-  showNotification(`Демо-баланс пополнен на ${formatMoney(Math.floor(amount))} ₽.`, 'success');
+  showNotification(`Баланс пополнен на ${formatInt(wholeAmount)} ₽.`, 'success');
 }
 
 // ==================== BATTLES ====================
@@ -1438,7 +1894,7 @@ function renderBattles() {
     return `
       <article class="battle-card">
         <div class="battle-header">
-          <span class="battle-status">Демо · ожидание</span>
+          <span class="battle-status">Ожидание</span>
           <span class="battle-players">${battle.players}</span>
         </div>
         <div class="battle-title">${escapeHtml(battle.title)}</div>
@@ -1451,9 +1907,9 @@ function renderBattles() {
           `).join('')}
         </div>
         <div class="battle-total">Вход: <strong>${formatMoney(battle.price)} ₽</strong></div>
-        <div class="battle-host">Хост: ${escapeHtml(battle.host)} · синтетический</div>
+        <div class="battle-host">Хост: ${escapeHtml(battle.host)}</div>
         <button class="battle-join-btn" type="button" data-battle-id="${battle.id}" ${isPending ? 'disabled' : ''}>
-          ${isPending ? 'Демо-батл идёт…' : `Участвовать в демо — ${formatMoney(battle.price)} ₽`}
+          ${isPending ? 'Батл идёт…' : `Участвовать — ${formatMoney(battle.price)} ₽`}
         </button>
       </article>
     `;
@@ -1465,12 +1921,12 @@ function joinBattle(battleId) {
   if (!battle || pendingBattles.has(battleId)) return;
 
   if (appState.balance < battle.price) {
-    showNotification('Недостаточно демо-средств для входа в батл.', 'error');
+    showNotification('Недостаточно средств для входа в батл.', 'error');
     return;
   }
 
   pendingBattles.add(battleId);
-  const generation = demoGeneration;
+  const generation = stateGeneration;
   appState.balance -= battle.price;
   persistState();
   updateBalanceUI();
@@ -1478,13 +1934,13 @@ function joinBattle(battleId) {
   const button = document.querySelector(`[data-battle-id="${battleId}"]`);
   if (button) {
     button.disabled = true;
-    button.textContent = 'Демо-батл идёт…';
+    button.textContent = 'Батл идёт…';
   }
 
-  showNotification('Демо-батл начат: соперники и результат синтетические.', 'success');
+  showNotification('Батл начат.', 'success');
 
   window.setTimeout(() => {
-    if (generation !== demoGeneration) {
+    if (generation !== stateGeneration) {
       pendingBattles.delete(battleId);
       return;
     }
@@ -1497,7 +1953,7 @@ function joinBattle(battleId) {
       appState.inventory.push(wonItem);
       persistState();
       renderInventory();
-      showNotification(`Демо-батл завершён: ${wonItem.name} добавлен в инвентарь.`, 'success');
+      showNotification(`Батл завершён: ${wonItem.name} добавлен в инвентарь.`, 'success');
       if (!prefersReducedMotion() && (wonItem.rarity === 'legendary' || wonItem.rarity === 'contraband')) {
         createConfetti();
       }
@@ -1538,7 +1994,7 @@ function addFeedItem(item) {
   element.innerHTML = `
     <img class="feed-item-img" src="${escapeHtml(item.img)}" alt="" loading="lazy">
     <div class="feed-item-name">${escapeHtml(item.name)}</div>
-    <div class="feed-item-price">${item.price} ₽</div>
+    <div class="feed-item-price">${formatMoney(item.price)} ₽</div>
     <div class="feed-item-user">${escapeHtml(name)}</div>
   `;
   feed.insertBefore(element, feed.firstChild);
@@ -1560,7 +2016,7 @@ function openResetDialog(trigger) {
   openModal($('resetModal'), $('resetCancel'), trigger);
 }
 
-function resetDemo() {
+function resetProgress() {
   if (spinTimer) {
     window.clearTimeout(spinTimer);
     spinTimer = null;
@@ -1569,7 +2025,7 @@ function resetDemo() {
   currentWin = null;
   currentCase = null;
   selectedUpgrade = null;
-  demoGeneration += 1;
+  stateGeneration += 1;
   pendingBattles.clear();
   clearCelebrations();
 
@@ -1582,7 +2038,7 @@ function resetDemo() {
   resetUpgradeUI();
   closeModal($('resetModal'));
   showSection('cases');
-  showNotification('Демо сброшено: 1 250 ₽ и пустой инвентарь.', 'success');
+  showNotification('Прогресс сброшен: 1 250 ₽ и пустой инвентарь.', 'success');
 }
 
 // ==================== UI UTILS ====================
@@ -1591,7 +2047,7 @@ function updateBalanceUI() {
   $('balanceDisplay').textContent = formatted;
   $('balanceBox').setAttribute(
     'aria-label',
-    `Демо-баланс: ${formatted} ₽, демо. Открыть демо-пополнение`
+    `Баланс: ${formatted} ₽. Открыть пополнение`
   );
 }
 

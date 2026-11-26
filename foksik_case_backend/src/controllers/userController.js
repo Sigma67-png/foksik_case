@@ -1,4 +1,11 @@
+import mongoose from 'mongoose';
 import User from '../models/User.js';
+
+function hasValidId(req, res) {
+  if (mongoose.isValidObjectId(req.params.id)) return true;
+  res.status(400).json({ success: false, error: 'Invalid user id' });
+  return false;
+}
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -16,6 +23,8 @@ export const getUsers = async (req, res) => {
 // @route   GET /api/users/:id
 // @access  Public
 export const getUser = async (req, res) => {
+  if (!hasValidId(req, res)) return;
+
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -43,6 +52,8 @@ export const createUser = async (req, res) => {
 // @route   PUT /api/users/:id
 // @access  Public
 export const updateUser = async (req, res) => {
+  if (!hasValidId(req, res)) return;
+
   try {
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -61,6 +72,8 @@ export const updateUser = async (req, res) => {
 // @route   DELETE /api/users/:id
 // @access  Public
 export const deleteUser = async (req, res) => {
+  if (!hasValidId(req, res)) return;
+
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
