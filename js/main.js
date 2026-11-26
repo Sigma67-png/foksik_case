@@ -212,11 +212,16 @@ let spinTimer = null;
 let activeFilter = 'all';
 let selectedUpgrade = null;
 let upgradeInProgress = false;
+let upgradeSpinTimer = null;
+let upgradeSpinGeneration = 0;
+let upgradeArrowRotation = 0;
 let pendingBattles = new Set();
 let demoGeneration = 0;
 let activeModal = null;
 let modalReturnFocus = null;
 let notificationTimer = null;
+let confettiTimer = null;
+let fireworksTimer = null;
 
 // ==================== HELPERS ====================
 const $ = (id) => document.getElementById(id);
@@ -382,6 +387,8 @@ document.addEventListener('DOMContentLoaded', () => {
   generateFeedItems();
   startLiveFeed();
   initializeDepositButtons();
+  setUpgradeWheelChance(0);
+  hideUpgradeResult();
   showSection('cases', { scroll: false });
 });
 
@@ -412,17 +419,31 @@ function bindEvents() {
     }
   });
 
-  $('sourcePickerClose').addEventListener('click', () => closeModal($('sourcePickerModal')));
   $('previewClose').addEventListener('click', () => closeModal($('previewModal')));
-  $('upgradeFrom').addEventListener('click', openUpgradeSourcePicker);
+  $('upgradeFrom').addEventListener('click', focusUpgradePicker);
   $('upgradeFrom').addEventListener('keydown', (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      openUpgradeSourcePicker();
+      focusUpgradePicker();
     }
   });
   $('upgradeBtn').addEventListener('click', doUpgrade);
   $('sellAllBtn').addEventListener('click', sellAll);
+
+  document.querySelectorAll('[data-jump]').forEach((button) => {
+    button.addEventListener('click', () => jumpToSection(button.dataset.jump));
+  });
+  const dismissUpgradeResult = document.querySelector('[data-dismiss-upgrade-result]');
+  if (dismissUpgradeResult) {
+    dismissUpgradeResult.addEventListener('click', closeUpgradeResult);
+  }
+  const upgradeResultAgain = $('upgradeResultAgain');
+  if (upgradeResultAgain) {
+    upgradeResultAgain.addEventListener('click', () => {
+      hideUpgradeResult();
+      focusUpgradePicker();
+    });
+  }
 
   $('resetCancel').addEventListener('click', () => closeModal($('resetModal')));
   $('resetClose').addEventListener('click', () => closeModal($('resetModal')));
@@ -501,13 +522,19 @@ function handleDocumentClick(event) {
   }
 
   if (event.target.closest('[data-open-cases]')) {
-    closeModal($('sourcePickerModal'));
     showSection('cases');
   }
 }
 
 function handleGlobalKeydown(event) {
-  if (!activeModal) return;
+  if (!activeModal) {
+    const result = $('upgradeResult');
+    if (event.key === 'Escape' && result && !result.hidden) {
+      event.preventDefault();
+      closeUpgradeResult();
+    }
+    return;
+  }
 
   if (event.key === 'Escape') {
     event.preventDefault();
@@ -559,7 +586,6 @@ const MODAL_CLOSE_HANDLERS = {
   rouletteModal: () => requestCloseRoulette(),
   winOverlay: () => keepWin(),
   depositOverlay: () => closeDeposit(),
-  sourcePickerModal: () => closeModal($('sourcePickerModal')),
   previewModal: () => closeModal($('previewModal')),
   resetModal: () => closeModal($('resetModal')),
 };
@@ -649,6 +675,20 @@ function showSection(section, options = {}) {
   if (scroll) {
     window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
   }
+}
+
+function jumpToSection(section) {
+  const sectionElement = $(SECTION_IDS[section]);
+  if (!sectionElement) return;
+
+  showSection(section, { scroll: false });
+  const header = document.querySelector('.header');
+  const offset = (header ? header.offsetHeight : 0) + 14;
+  const top = sectionElement.getBoundingClientRect().top + window.scrollY - offset;
+
+  window.scrollTo({ top, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+  sectionElement.setAttribute('tabindex', '-1');
+  window.requestAnimationFrame(() => sectionElement.focus({ preventScroll: true }));
 }
 
 // ==================== CASES ====================
@@ -877,6 +917,7 @@ function renderInventory() {
         <button class="primary-btn" type="button" data-open-cases>Перейти к кейсам</button>
       </div>
     `;
+    renderUpgradePicker();
     return;
   }
 
@@ -893,6 +934,7 @@ function renderInventory() {
       </div>
     </article>
   `).join('');
+  renderUpgradePicker();
 }
 
 function pluralizeItems(count) {
@@ -960,37 +1002,73 @@ function previewItem(itemId, trigger) {
 }
 
 // ==================== UPGRADE ====================
-function openUpgradeSourcePicker() {
+function focusUpgradePicker() {
   if (upgradeInProgress) return;
-  renderSourcePicker();
-  const firstSource = document.querySelector('[data-source-id]');
-  openModal($('sourcePickerModal'), firstSource || $('sourcePickerClose'), $('upgradeFrom'));
+
+  const picker = $('upgradePicker');
+  if (!picker) return;
+
+  const target = picker.querySelector('[data-source-id]:not([disabled])')
+    || picker.querySelector('[data-open-cases]');
+  if (!target) return;
+
+  picker.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'nearest' });
+  window.requestAnimationFrame(() => target.focus({ preventScroll: true }));
 }
 
-function renderSourcePicker() {
-  const grid = $('sourcePickerGrid');
+function renderUpgradePicker() {
+  const grid = $('upgradePickerGrid');
+  const empty = $('upgradePickerEmpty');
+  const count = $('upgradePickerCount');
+  if (!grid || !empty || !count) return;
+
+  count.textContent = `${appState.inventory.length} ${pluralizeItems(appState.inventory.length)}`;
+
   if (!appState.inventory.length) {
-    grid.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon" aria-hidden="true">🎒</div>
-        <h3>В инвентаре нет предметов</h3>
-        <p>Для апгрейда сначала откройте кейс.</p>
-        <button class="primary-btn" type="button" data-open-cases>Перейти к кейсам</button>
-      </div>
-    `;
+    grid.innerHTML = '';
+    grid.hidden = true;
+    empty.hidden = false;
     return;
   }
 
-  grid.innerHTML = appState.inventory.map((item) => `
-    <button class="source-option" type="button" data-source-id="${escapeHtml(item.id)}">
-      <img class="source-option-img" src="${escapeHtml(item.img)}" alt="">
-      <span class="source-option-info">
-        <span class="source-option-name">${escapeHtml(item.name)}</span>
-        <span class="source-option-rarity" style="color:${getRarityColor(item.rarity)}">${escapeHtml(RARITY_LABELS[item.rarity] || 'обычный')}</span>
-      </span>
-      <span class="source-option-price">${formatMoney(item.price)} ₽</span>
-    </button>
-  `).join('');
+  empty.hidden = true;
+  grid.hidden = false;
+  grid.innerHTML = appState.inventory.map((item) => {
+    const target = getUpgradeTarget(item);
+    const chance = target
+      ? Math.max(1, Math.min(85, Math.round((item.price / target.price) * 100)))
+      : null;
+    const selected = Boolean(selectedUpgrade && selectedUpgrade.sourceId === item.id);
+
+    return `
+      <button class="upgrade-pick${selected ? ' is-selected' : ''}"
+        type="button"
+        data-source-id="${escapeHtml(item.id)}"
+        aria-pressed="${selected}"
+        ${target ? '' : 'disabled'}
+        style="--rarity:${getRarityColor(item.rarity)}">
+        <span class="upgrade-pick-img"><img src="${escapeHtml(item.img)}" alt="" loading="lazy"></span>
+        <span class="upgrade-pick-name">${escapeHtml(item.name)}</span>
+        <span class="upgrade-pick-meta">
+          <span class="upgrade-pick-price">${formatMoney(item.price)} ₽</span>
+          <span class="upgrade-pick-chance">${target ? `${chance}%` : 'нет цели'}</span>
+        </span>
+      </button>
+    `;
+  }).join('');
+
+  markUpgradePickerSelection();
+}
+
+function markUpgradePickerSelection() {
+  const grid = $('upgradePickerGrid');
+  if (!grid) return;
+
+  grid.querySelectorAll('[data-source-id]').forEach((button) => {
+    const selected = Boolean(selectedUpgrade && selectedUpgrade.sourceId === button.dataset.sourceId);
+    button.classList.toggle('is-selected', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
 }
 
 function selectUpgradeSource(itemId) {
@@ -1013,7 +1091,74 @@ function selectUpgradeSource(itemId) {
   };
 
   renderUpgradeSelection();
-  closeModal($('sourcePickerModal'));
+  markUpgradePickerSelection();
+}
+
+function setUpgradeWheelChance(chance) {
+  const wheel = $('upgradeWheel');
+  if (!wheel) return;
+
+  const angle = Math.max(2, Math.min(360, chance * 3.6));
+  const winOrbit = $('wheelWinLabel');
+  const missOrbit = $('wheelMissLabel');
+
+  wheel.style.setProperty('--chance-angle', `${angle}deg`);
+  if (winOrbit) {
+    winOrbit.style.setProperty('--label-angle', `${(2 + angle) / 2}deg`);
+    winOrbit.classList.toggle('is-hidden', angle - 2 < 24);
+  }
+  if (missOrbit) {
+    missOrbit.style.setProperty('--label-angle', `${angle + (360 - angle) / 2}deg`);
+    missOrbit.classList.toggle('is-hidden', 360 - angle < 24);
+  }
+}
+
+function setUpgradeButtonLabel(text) {
+  const button = $('upgradeBtn');
+  if (!button) return;
+  const label = button.querySelector('.spin-btn-text');
+  if (label) label.textContent = text;
+  else button.textContent = text;
+}
+
+function resetWheelArrow() {
+  const arrow = $('upgradeArrow');
+  if (!arrow) return;
+
+  arrow.style.transition = 'none';
+  arrow.style.transform = 'rotate(0deg)';
+  upgradeArrowRotation = 0;
+  window.requestAnimationFrame(() => {
+    arrow.style.transition = '';
+  });
+}
+
+function hideUpgradeResult() {
+  const result = $('upgradeResult');
+  if (!result) return;
+  result.hidden = true;
+  result.classList.remove('is-success', 'is-fail');
+}
+
+function closeUpgradeResult() {
+  hideUpgradeResult();
+  const sourceSlot = $('upgradeFrom');
+  if (sourceSlot) sourceSlot.focus({ preventScroll: true });
+}
+
+function cancelUpgradeSpin() {
+  if (upgradeSpinTimer) {
+    window.clearTimeout(upgradeSpinTimer);
+    upgradeSpinTimer = null;
+  }
+  upgradeSpinGeneration += 1;
+  upgradeInProgress = false;
+
+  const wrap = $('wheelWrap');
+  if (wrap) wrap.classList.remove('is-spinning', 'is-success', 'is-fail');
+  const button = $('upgradeBtn');
+  if (button) button.classList.remove('is-spinning');
+  resetWheelArrow();
 }
 
 function renderUpgradeSelection() {
@@ -1023,7 +1168,7 @@ function renderUpgradeSelection() {
   $('upgradeFrom').classList.add('filled');
   $('upgradeFrom').setAttribute('aria-label', `Выбран ${source.name}. Нажмите, чтобы сменить предмет`);
   $('upgradeFrom').innerHTML = `
-    <div class="upgrade-slot-label">Ваш скин</div>
+    <div class="upgrade-slot-label">Твой скин</div>
     <img src="${escapeHtml(source.img)}" alt="">
     <div class="upgrade-slot-name">${escapeHtml(source.name)}</div>
     <div class="upgrade-slot-price">${formatMoney(source.price)} ₽</div>
@@ -1040,21 +1185,31 @@ function renderUpgradeSelection() {
 
   $('upgradeChance').classList.remove('is-empty');
   $('upgradeChance').textContent = `${chance}%`;
-  $('upgradeChanceLabel').textContent = 'Шанс успеха зафиксирован. При неудаче предмет теряется.';
+  $('upgradeChanceLabel').textContent = 'Шанс успеха зафиксирован. Крути колесо: при неудаче предмет сгорает.';
+  setUpgradeWheelChance(chance);
+  hideUpgradeResult();
+  resetWheelArrow();
+
+  const wrap = $('wheelWrap');
+  if (wrap) wrap.classList.remove('is-spinning', 'is-success', 'is-fail');
   const button = $('upgradeBtn');
+  button.classList.remove('is-spinning');
   button.disabled = false;
-  button.textContent = 'Попробовать апгрейд';
+  setUpgradeButtonLabel('Крутить колесо');
+  markUpgradePickerSelection();
 }
 
 function resetUpgradeUI(message = 'Выберите предмет из инвентаря') {
   selectedUpgrade = null;
+  cancelUpgradeSpin();
+  hideUpgradeResult();
 
   $('upgradeFrom').classList.remove('filled');
   $('upgradeFrom').setAttribute('aria-label', 'Выбрать предмет для апгрейда');
   $('upgradeFrom').innerHTML = `
-    <div class="upgrade-slot-label">Ваш скин</div>
+    <div class="upgrade-slot-label">Твой скин</div>
     <div class="upgrade-slot-placeholder" aria-hidden="true">+</div>
-    <div class="upgrade-slot-hint">Нажмите, чтобы выбрать предмет</div>
+    <div class="upgrade-slot-hint">Нажми, чтобы выбрать предмет</div>
   `;
 
   $('upgradeTo').classList.remove('filled');
@@ -1067,9 +1222,33 @@ function resetUpgradeUI(message = 'Выберите предмет из инве
   $('upgradeChance').textContent = '—';
   $('upgradeChance').classList.add('is-empty');
   $('upgradeChanceLabel').textContent = message;
+  setUpgradeWheelChance(0);
   const button = $('upgradeBtn');
   button.disabled = true;
-  button.textContent = 'Попробовать апгрейд';
+  button.classList.remove('is-spinning');
+  setUpgradeButtonLabel('Крутить колесо');
+  markUpgradePickerSelection();
+}
+
+function renderUpgradeResult(success, source, target) {
+  const result = $('upgradeResult');
+  if (!result) return;
+
+  result.hidden = false;
+  result.classList.toggle('is-success', success);
+  result.classList.toggle('is-fail', !success);
+
+  $('upgradeResultEyebrow').textContent = success ? 'FOKSIK APPROVED' : 'FOKSIK WHEEL';
+  $('upgradeResultTitle').textContent = success ? 'ВОТ ЭТО ДРОП' : 'МИМО';
+  $('upgradeResultImg').src = success ? target.img : source.img;
+  $('upgradeResultImg').alt = success ? target.name : source.name;
+  $('upgradeResultItem').textContent = success ? target.name : source.name;
+  $('upgradeResultPrice').textContent = success
+    ? `${formatMoney(target.price)} ₽`
+    : 'предмет сгорел';
+  $('upgradeResultNote').textContent = success
+    ? 'Уже в инвентаре · это демо'
+    : 'Крути ещё · собери новый дроп';
 }
 
 function doUpgrade() {
@@ -1084,47 +1263,120 @@ function doUpgrade() {
   }
 
   upgradeInProgress = true;
+  hideUpgradeResult();
   const button = $('upgradeBtn');
+  const wrap = $('wheelWrap');
   button.disabled = true;
-  button.textContent = 'Проверяем…';
+  button.classList.add('is-spinning');
+  setUpgradeButtonLabel('Колесо крутится…');
+  $('upgradeChanceLabel').textContent = 'Колесо решает. Шанс уже зафиксирован.';
+
+  if (wrap) {
+    wrap.classList.remove('is-success', 'is-fail');
+    wrap.classList.add('is-spinning');
+  }
 
   const success = Math.random() * 100 < chance;
+  const chanceAngle = Math.max(2, Math.min(360, chance * 3.6));
+  const successStart = 2;
+  const successSpan = Math.max(chanceAngle - successStart, 0.2);
+  const failSpan = Math.max(360 - chanceAngle, 0.2);
+  let landingAngle;
+
+  if (success) {
+    const margin = Math.min(5, successSpan * 0.3);
+    landingAngle = successStart + margin + Math.random() * Math.max(successSpan - margin * 2, 0.2);
+  } else {
+    const margin = Math.min(5, failSpan * 0.3);
+    landingAngle = chanceAngle + margin + Math.random() * Math.max(failSpan - margin * 2, 0.2);
+  }
+
+  const extraTurns = 6 + Math.floor(Math.random() * 3);
+  const currentMod = ((upgradeArrowRotation % 360) + 360) % 360;
+  const delta = (landingAngle - currentMod + 360) % 360;
+  const nextRotation = upgradeArrowRotation + extraTurns * 360 + delta;
+  upgradeArrowRotation = nextRotation;
+  setUpgradeWheelChance(chance);
+
+  const arrow = $('upgradeArrow');
+  if (arrow) {
+    arrow.style.transition = '';
+    void arrow.offsetWidth;
+    window.requestAnimationFrame(() => {
+      arrow.style.transform = `rotate(${nextRotation}deg)`;
+    });
+  }
+
   appState.inventory.splice(index, 1);
+  persistState();
+  renderInventory();
+
+  const generation = demoGeneration;
+  const spinId = ++upgradeSpinGeneration;
+  const duration = prefersReducedMotion() ? 140 : 4700;
+
+  upgradeSpinTimer = window.setTimeout(() => {
+    if (spinId !== upgradeSpinGeneration || generation !== demoGeneration) return;
+    upgradeSpinTimer = null;
+    finishUpgrade({ success, source, target, chance });
+  }, duration);
+}
+
+function finishUpgrade({ success, source, target }) {
+  upgradeInProgress = false;
 
   if (success) {
     const wonItem = makeOwnedItem(target);
     if (wonItem) appState.inventory.push(wonItem);
+    persistState();
+    renderInventory();
   }
 
-  persistState();
-  updateBalanceUI();
-  renderInventory();
-  upgradeInProgress = false;
-
   selectedUpgrade = null;
+  markUpgradePickerSelection();
+  const button = $('upgradeBtn');
+  const wrap = $('wheelWrap');
+  button.classList.remove('is-spinning');
+  button.disabled = true;
+  setUpgradeButtonLabel('Выбери новый скин');
+  if (wrap) {
+    wrap.classList.remove('is-spinning');
+    wrap.classList.add(success ? 'is-success' : 'is-fail');
+  }
+
   $('upgradeFrom').classList.remove('filled');
   $('upgradeFrom').setAttribute('aria-label', 'Выбрать предмет для апгрейда');
   $('upgradeFrom').innerHTML = `
-    <div class="upgrade-slot-label">Ваш скин</div>
+    <div class="upgrade-slot-label">Твой скин</div>
     <div class="upgrade-slot-placeholder" aria-hidden="true">+</div>
-    <div class="upgrade-slot-hint">Нажмите, чтобы выбрать предмет</div>
+    <div class="upgrade-slot-hint">Нажми, чтобы выбрать предмет</div>
   `;
-  $('upgradeChance').textContent = '—';
-  $('upgradeChance').classList.add('is-empty');
+
+  $('upgradeTo').classList.remove('filled');
+  $('upgradeTo').innerHTML = `
+    <div class="upgrade-slot-label">Желаемый скин</div>
+    <div class="upgrade-slot-placeholder" aria-hidden="true">?</div>
+    <div class="upgrade-slot-hint">Цель появится после выбора</div>
+  `;
+
   $('upgradeChanceLabel').textContent = success
     ? `Успех: ${target.name} добавлен в инвентарь.`
     : `Неудача: ${source.name} потерян.`;
-  button.disabled = true;
-  button.textContent = 'Попробовать апгрейд';
+  renderUpgradeResult(success, source, target);
 
   if (success) {
     showNotification(`Апгрейд успешен: ${target.name} за ${formatMoney(target.price)} ₽.`, 'success');
     createConfetti();
+    createFireworks();
   } else {
     showNotification(`Апгрейд не удался: ${source.name} потерян.`, 'error');
   }
 
-  window.requestAnimationFrame(() => $('upgradeFrom').focus({ preventScroll: true }));
+  window.requestAnimationFrame(() => {
+    const again = $('upgradeResultAgain');
+    if (again) again.focus({ preventScroll: true });
+    else $('upgradeFrom').focus({ preventScroll: true });
+  });
 }
 
 // ==================== DEPOSIT ====================
@@ -1319,6 +1571,7 @@ function resetDemo() {
   selectedUpgrade = null;
   demoGeneration += 1;
   pendingBattles.clear();
+  clearCelebrations();
 
   appState = defaultState();
   persistState();
@@ -1362,9 +1615,12 @@ function createConfetti() {
   if (prefersReducedMotion()) return;
 
   const container = $('confettiContainer');
-  const colors = ['#34d399', '#10b981', '#f3f5f7', '#b3bcc9', '#fbbf24'];
+  if (!container) return;
+  if (confettiTimer) window.clearTimeout(confettiTimer);
+  container.innerHTML = '';
+  const colors = ['#c8f94f', '#e2ff83', '#ff8a4c', '#f7f8f2', '#8dff6a'];
 
-  for (let index = 0; index < 48; index += 1) {
+  for (let index = 0; index < 64; index += 1) {
     const piece = document.createElement('div');
     piece.className = 'confetti-piece';
     piece.style.left = `${Math.random() * 100}%`;
@@ -1376,7 +1632,66 @@ function createConfetti() {
     container.appendChild(piece);
   }
 
-  window.setTimeout(() => {
+  confettiTimer = window.setTimeout(() => {
     container.innerHTML = '';
+    confettiTimer = null;
   }, 4800);
+}
+
+function createFireworks() {
+  if (prefersReducedMotion()) return;
+
+  const container = $('fireworks');
+  if (!container) return;
+  if (fireworksTimer) window.clearTimeout(fireworksTimer);
+  container.innerHTML = '';
+
+  const colors = ['#c8f94f', '#e2ff83', '#ff8a4c', '#f7f8f2', '#8dff6a'];
+  const burstCount = 7;
+
+  for (let burstIndex = 0; burstIndex < burstCount; burstIndex += 1) {
+    const burst = document.createElement('div');
+    burst.className = 'firework-burst';
+    burst.style.left = `${12 + Math.random() * 76}%`;
+    burst.style.top = `${14 + Math.random() * 46}%`;
+
+    const particleCount = 20 + Math.floor(Math.random() * 10);
+    const distance = 66 + Math.random() * 86;
+
+    for (let particleIndex = 0; particleIndex < particleCount; particleIndex += 1) {
+      const particle = document.createElement('span');
+      particle.className = 'firework-particle';
+      const angle = (Math.PI * 2 * particleIndex) / particleCount + Math.random() * 0.16;
+      const radius = distance * (0.55 + Math.random() * 0.55);
+      particle.style.setProperty('--dx', `${Math.cos(angle) * radius}px`);
+      particle.style.setProperty('--dy', `${Math.sin(angle) * radius}px`);
+      particle.style.setProperty('--color', colors[Math.floor(Math.random() * colors.length)]);
+      particle.style.setProperty('--delay', `${burstIndex * 0.1 + Math.random() * 0.22}s`);
+      particle.style.setProperty('--size', `${4 + Math.random() * 4}px`);
+      burst.appendChild(particle);
+    }
+
+    container.appendChild(burst);
+  }
+
+  fireworksTimer = window.setTimeout(() => {
+    container.innerHTML = '';
+    fireworksTimer = null;
+  }, 3400);
+}
+
+function clearCelebrations() {
+  if (confettiTimer) {
+    window.clearTimeout(confettiTimer);
+    confettiTimer = null;
+  }
+  if (fireworksTimer) {
+    window.clearTimeout(fireworksTimer);
+    fireworksTimer = null;
+  }
+
+  const confetti = $('confettiContainer');
+  const fireworks = $('fireworks');
+  if (confetti) confetti.innerHTML = '';
+  if (fireworks) fireworks.innerHTML = '';
 }

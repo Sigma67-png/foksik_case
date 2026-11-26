@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Демонстрационный прототип кейс-опенера Standoff 2: виртуальный баланс, взвешенные шансы, без реальных платежей.">
-<title>SO2 CASES — демо-прототип кейс-опенера Standoff 2</title>
+<meta name="description" content="FOKSIK CASE — демо-сайт блогера foksik_yt: кейсы Standoff 2, апгрейд-колесо, виртуальный баланс, без реальных платежей.">
+<meta name="theme-color" content="#0b0e0c">
+<title>FOKSIK CASE — кейсы и апгрейд от foksik_yt (демо)</title>
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -13,13 +14,18 @@
 <!-- Header -->
 <header class="header">
   <div class="demo-strip" role="status">
-    <span class="demo-full">Демо-режим: виртуальный баланс, реальных платежей и выплат нет.</span>
-    <span class="demo-short">Демо: виртуальные средства, без реальных платежей.</span>
+    <span class="demo-full">Демо-сайт блогера foksik_yt: виртуальный баланс, реальных платежей и выплат нет.</span>
+    <span class="demo-short">Демо foksik_yt: виртуальные средства, без реальных платежей.</span>
   </div>
   <div class="header-inner">
-    <a class="logo" href="#main" data-section="cases" aria-label="S2 SO2 CASES — на главную">
-      <span class="logo-icon" aria-hidden="true">S2</span>
-      <span class="logo-text">SO2 CASES</span>
+    <a class="logo" href="#main" data-section="cases" aria-label="FOKSIK CASE — сайт блогера foksik_yt, на главную">
+      <span class="logo-avatar" aria-hidden="true">
+        <img src="assets/foksik-original.jpg" alt="">
+      </span>
+      <span class="logo-text">
+        <span class="logo-brand">FOKSIK CASE</span>
+        <span class="logo-handle">@foksik_yt</span>
+      </span>
     </a>
     <nav class="nav" aria-label="Основная навигация">
       <button class="nav-link active" type="button" data-section="cases" aria-current="page">🎁 Кейсы</button>
@@ -37,7 +43,7 @@
         <span aria-hidden="true">+</span> <span class="deposit-label">Пополнить</span>
       </button>
       <button class="btn-reset" type="button" data-reset-demo title="Сбросить демо" aria-label="Сбросить демо-баланс и инвентарь">↺</button>
-      <div class="user-avatar" aria-hidden="true" title="Демо-игрок">P</div>
+      <div class="user-avatar" aria-hidden="true" title="Демо-игрок">F</div>
     </div>
   </div>
 </header>
@@ -47,28 +53,67 @@
   <!-- Hero -->
   <section class="hero" aria-labelledby="heroTitle">
     <div class="hero-content">
-      <div class="hero-badge">
-        <span class="pulse" aria-hidden="true"></span>
-        Демо-режим · синтетические данные
+      <div class="hero-copy">
+        <div class="hero-badge">
+          <span class="pulse" aria-hidden="true"></span>
+          Сайт блогера <strong>foksik_yt</strong> · демо
+        </div>
+        <p class="hero-kicker">Standoff 2 · cases · upgrade</p>
+        <h1 id="heroTitle">FOKSIK <span>CASE</span></h1>
+        <p class="hero-lead">Кейсы, скины и апгрейд-колесо в стиле foksik_yt. Крути, собирай дроп и лови салют. Всё честно: виртуальный баланс, без реальных платежей.</p>
+        <div class="hero-actions">
+          <button class="hero-cta" type="button" data-jump="cases">
+            Открыть кейсы <span aria-hidden="true">→</span>
+          </button>
+          <button class="hero-cta hero-cta-ghost" type="button" data-jump="upgrade">
+            <span class="hero-cta-wheel" aria-hidden="true">◎</span> Крутить апгрейд
+          </button>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-value">12</div>
+            <div class="hero-stat-label">кейсов в дропе</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value">1</div>
+            <div class="hero-stat-label">колесо апгрейда</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value">0 ₽</div>
+            <div class="hero-stat-label">реальных платежей</div>
+          </div>
+        </div>
       </div>
-      <h1 id="heroTitle">Открывай кейсы <span>Standoff 2</span></h1>
-      <p>Демонстрационный прототип полного цикла: виртуальный баланс, взвешенные шансы и никаких реальных платежей.</p>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <div class="hero-stat-value">12</div>
-          <div class="hero-stat-label">кейсов в каталоге</div>
+      <div class="hero-photo">
+        <img src="assets/foksik-original.jpg" alt="Блогер foksik_yt в белой футболке и серых брюках в парке">
+        <div class="hero-photo-shade" aria-hidden="true"></div>
+        <div class="hero-photo-tag">
+          <span class="hero-photo-check" aria-hidden="true">✓</span>
+          <span>
+            <strong>foksik_yt</strong>
+            <small>Standoff 2 · content</small>
+          </span>
         </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value">100%</div>
-          <div class="hero-stat-label">виртуальные средства</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value">0 ₽</div>
-          <div class="hero-stat-label">реальных платежей</div>
+        <div class="hero-photo-sticker" aria-hidden="true">FOKSIK<br>DROP</div>
+        <div class="hero-photo-card">
+          <span class="hero-photo-card-label">FOKSIK CASE</span>
+          <span class="hero-photo-card-text">кейсы · апгрейд · движ</span>
+          <span class="hero-photo-card-demo">демо</span>
         </div>
       </div>
     </div>
   </section>
+
+  <div class="brand-marquee" aria-hidden="true">
+    <div class="brand-marquee-track">
+      <div class="brand-marquee-group">
+        <span>FOKSIK CASE</span><b>✦</b><span>FOKSIK_YT</span><b>✦</b><span>SO2 DROP</span><b>✦</b><span>UPGRADE WHEEL</span><b>✦</b>
+      </div>
+      <div class="brand-marquee-group">
+        <span>FOKSIK CASE</span><b>✦</b><span>FOKSIK_YT</span><b>✦</b><span>SO2 DROP</span><b>✦</b><span>UPGRADE WHEEL</span><b>✦</b>
+      </div>
+    </div>
+  </div>
 
   <!-- Live Feed -->
   <section class="section" aria-labelledby="feedTitle">
@@ -116,32 +161,115 @@
   </section>
 
   <!-- Upgrade Section -->
-  <section class="section tab-section" id="upgradeSection" aria-labelledby="upgradeTitle">
+  <section class="section tab-section upgrade-section" id="upgradeSection" aria-labelledby="upgradeTitle">
     <div class="section-header">
       <div class="section-title" id="upgradeTitle">
-        <span class="icon" aria-hidden="true">⬆️</span>
-        Апгрейд скинов
-        <span class="demo-badge">фиксированный шанс</span>
+        <span class="icon" aria-hidden="true">✦</span>
+        Апгрейд-колесо
+        <span class="demo-badge">шанс зафиксирован</span>
+      </div>
+      <div class="upgrade-brand-chip" aria-hidden="true">
+        <span class="upgrade-brand-dot"></span>
+        foksik_yt edition
       </div>
     </div>
-    <div class="upgrade-container">
-      <div class="upgrade-slot" id="upgradeFrom" role="button" tabindex="0" aria-label="Выбрать предмет для апгрейда">
-        <div class="upgrade-slot-label">Ваш скин</div>
-        <div class="upgrade-slot-placeholder" aria-hidden="true">+</div>
-        <div class="upgrade-slot-hint">Нажмите, чтобы выбрать предмет</div>
+
+    <div class="upgrade-arena" id="upgradeArena">
+      <div class="upgrade-rail upgrade-rail-source">
+        <div class="upgrade-slot" id="upgradeFrom" role="button" tabindex="0" aria-label="Выбрать предмет для апгрейда">
+          <div class="upgrade-slot-label">Твой скин</div>
+          <div class="upgrade-slot-placeholder" aria-hidden="true">+</div>
+          <div class="upgrade-slot-hint">Нажми, чтобы выбрать предмет</div>
+        </div>
+        <p class="upgrade-rail-note">Списывается при попытке</p>
       </div>
-      <div class="upgrade-arrow" aria-hidden="true">→</div>
-      <div class="upgrade-slot" id="upgradeTo" aria-live="polite">
-        <div class="upgrade-slot-label">Желаемый скин</div>
-        <div class="upgrade-slot-placeholder" aria-hidden="true">?</div>
-        <div class="upgrade-slot-hint">Цель появится после выбора</div>
+
+      <div class="wheel-zone">
+        <div class="wheel-host">
+          <span class="wheel-host-avatar">
+            <img src="assets/foksik-original.jpg" alt="">
+          </span>
+          <span class="wheel-host-copy">
+            <strong>foksik_yt</strong>
+            <small>крутит вместе с тобой</small>
+          </span>
+          <span class="wheel-host-live"><span aria-hidden="true"></span>demo</span>
+        </div>
+
+        <div class="wheel-wrap" id="wheelWrap">
+          <div class="wheel-glow" aria-hidden="true"></div>
+          <div class="wheel-arrow" id="upgradeArrow" aria-hidden="true">
+            <span class="wheel-arrow-trail"></span>
+            <span class="wheel-pointer"></span>
+            <span class="wheel-arrow-spark"></span>
+          </div>
+          <div class="wheel" id="upgradeWheel" aria-hidden="true">
+            <div class="wheel-face"></div>
+            <div class="wheel-ticks"></div>
+            <div class="wheel-label-orbit wheel-label-win" id="wheelWinLabel">
+              <span>WIN</span>
+            </div>
+            <div class="wheel-label-orbit wheel-label-miss" id="wheelMissLabel">
+              <span>MISS</span>
+            </div>
+          </div>
+          <div class="wheel-hub">
+            <span class="wheel-hub-label">шанс</span>
+            <span class="upgrade-chance is-empty" id="upgradeChance">—</span>
+            <span class="wheel-hub-sub">успеха</span>
+          </div>
+
+          <div class="wheel-result" id="upgradeResult" hidden>
+            <button class="wheel-result-close" type="button" data-dismiss-upgrade-result aria-label="Закрыть результат">✕</button>
+            <div class="wheel-result-eyebrow" id="upgradeResultEyebrow">FOKSIK WHEEL</div>
+            <img class="wheel-result-img" id="upgradeResultImg" src="assets/placeholder.svg" alt="">
+            <div class="wheel-result-title" id="upgradeResultTitle">Апгрейд</div>
+            <div class="wheel-result-item" id="upgradeResultItem"></div>
+            <div class="wheel-result-price" id="upgradeResultPrice"></div>
+            <div class="wheel-result-note" id="upgradeResultNote"></div>
+            <button class="wheel-result-again" id="upgradeResultAgain" type="button">
+              <span aria-hidden="true">↻</span> Крутить ещё
+            </button>
+          </div>
+        </div>
+
+        <p class="upgrade-chance-label" id="upgradeChanceLabel" role="status" aria-live="polite">Выбери предмет из инвентаря</p>
+      </div>
+
+      <div class="upgrade-rail upgrade-rail-target">
+        <div class="upgrade-slot" id="upgradeTo" aria-live="polite">
+          <div class="upgrade-slot-label">Желаемый скин</div>
+          <div class="upgrade-slot-placeholder" aria-hidden="true">?</div>
+          <div class="upgrade-slot-hint">Цель появится после выбора</div>
+        </div>
+        <p class="upgrade-rail-note">Цель подбирается по цене</p>
+      </div>
+
+      <div class="upgrade-picker" id="upgradePicker" aria-labelledby="upgradePickerTitle">
+        <div class="upgrade-picker-head">
+          <div>
+            <h3 class="upgrade-picker-title" id="upgradePickerTitle">Выбери скин для апгрейда</h3>
+            <p class="upgrade-picker-hint">Нажми на предмет — покажем шанс и цель.</p>
+          </div>
+          <span class="upgrade-picker-count" id="upgradePickerCount">0 предметов</span>
+        </div>
+        <div class="upgrade-picker-empty" id="upgradePickerEmpty" hidden>
+          <div>
+            <strong>Инвентарь пуст</strong>
+            <span>Открой кейс — и скин появится здесь.</span>
+          </div>
+          <button class="primary-btn" type="button" data-open-cases>Открыть кейсы</button>
+        </div>
+        <div class="upgrade-picker-grid" id="upgradePickerGrid" role="group" aria-label="Предметы инвентаря для апгрейда"></div>
       </div>
     </div>
+
     <div class="upgrade-action">
-      <div class="upgrade-chance is-empty" id="upgradeChance" aria-live="polite">—</div>
-      <div class="upgrade-chance-label" id="upgradeChanceLabel">Выберите предмет из инвентаря</div>
-      <button class="spin-btn" id="upgradeBtn" type="button" disabled>Попробовать апгрейд</button>
-      <p class="demo-note">Шанс фиксируется при выборе предмета. При неудаче предмет теряется.</p>
+      <button class="spin-btn wheel-spin-btn" id="upgradeBtn" type="button" disabled>
+        <span class="spin-btn-icon" aria-hidden="true">◎</span>
+        <span class="spin-btn-text">Крутить колесо</span>
+      </button>
+      <p class="demo-note">Шанс фиксируется при выборе. Успех — целевой скин в инвентаре. Неудача — предмет сгорает. Реальных платежей нет.</p>
     </div>
   </section>
 
@@ -163,8 +291,8 @@
 <footer class="footer">
   <div class="footer-inner">
     <div>
-      <div class="footer-brand">SO2 CASES</div>
-      <div class="footer-desc">Демонстрационный прототип кейс-опенера Standoff 2. Виртуальные средства, взвешенные шансы, без реальных платежей и выплат. Не является реальной игрой и не связано с разработчиками Standoff 2.</div>
+      <div class="footer-brand">FOKSIK CASE <span>@foksik_yt</span></div>
+      <div class="footer-desc">Демо-сайт блогера foksik_yt: кейсы Standoff 2, апгрейд-колесо и виртуальный инвентарь. Виртуальные средства, без реальных платежей и выплат. Не является реальной игрой и не связано с разработчиками Standoff 2.</div>
       <button class="footer-reset" type="button" data-reset-demo>↺ Сбросить демо</button>
     </div>
     <div>
@@ -194,7 +322,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    © 2026 SO2 CASES · Демо-прототип. Не является реальной игрой. Изображения используются только для демонстрации.
+    © 2026 FOKSIK CASE · Демо-сайт блогера foksik_yt. Не является реальной игрой. Изображения используются только для демонстрации.
   </div>
 </footer>
 
@@ -262,20 +390,6 @@
   </div>
 </div>
 
-<!-- Source Picker Modal -->
-<div class="modal-overlay js-modal" id="sourcePickerModal" role="dialog" aria-modal="true" aria-labelledby="sourcePickerTitle" aria-hidden="true">
-  <div class="modal source-picker-modal">
-    <div class="modal-header">
-      <h2 class="modal-title" id="sourcePickerTitle">Выберите предмет для апгрейда</h2>
-      <button class="modal-close" type="button" id="sourcePickerClose" aria-label="Закрыть">✕</button>
-    </div>
-    <div class="modal-body">
-      <p class="demo-note">Предмет будет списан при попытке. При неудаче он не возвращается.</p>
-      <div class="source-picker-grid" id="sourcePickerGrid"></div>
-    </div>
-  </div>
-</div>
-
 <!-- Preview Modal -->
 <div class="modal-overlay js-modal" id="previewModal" role="dialog" aria-modal="true" aria-labelledby="previewTitle" aria-hidden="true">
   <div class="modal preview-modal">
@@ -316,7 +430,8 @@
   <span class="notif-text" id="notifText"></span>
 </div>
 
-<!-- Confetti Container -->
+<!-- Celebration -->
+<div class="fireworks" id="fireworks" aria-hidden="true"></div>
 <div class="confetti" id="confettiContainer" aria-hidden="true"></div>
 
 <noscript>
