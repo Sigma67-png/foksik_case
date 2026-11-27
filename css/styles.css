@@ -2336,12 +2336,13 @@ a {
   transition: background-color 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
 }
 
-.spin-btn:hover:not(:disabled) {
+.spin-btn:hover:not(:disabled):not([aria-disabled='true']) {
   background: var(--accent-strong);
   transform: translateY(-2px);
 }
 
-.spin-btn:disabled {
+.spin-btn:disabled,
+.spin-btn[aria-disabled='true'] {
   opacity: 0.45;
   cursor: not-allowed;
 }
@@ -2748,7 +2749,38 @@ a {
   overflow-y: auto;
 }
 
-/* Roulette */
+/* Рулетка: N лент в одном окне, у каждой свой указатель и трек */
+.roulette-lanes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.roulette-lane {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.roulette-lane-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.roulette-lanes.is-single .roulette-lane-label {
+  display: none;
+}
+
+.roulette-lane .roulette-container {
+  width: 100%;
+}
+
 .roulette-container {
   position: relative;
   width: 100%;
@@ -2955,6 +2987,14 @@ a {
   width: 100%;
 }
 
+/* Кнопка остаётся в зоне видимости, когда стек лент длиннее экрана */
+.modal-body > .spin-btn.is-sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 3;
+  margin-top: 8px;
+}
+
 /* Win */
 .win-overlay {
   z-index: 3000;
@@ -3040,8 +3080,12 @@ a {
   background: var(--border);
 }
 
+.win-actions-divider[hidden] {
+  display: none;
+}
+
 .win-actions-grid-secondary .win-btn {
-  min-height: 42px;
+  min-height: 44px;
   background: transparent;
 }
 

@@ -320,10 +320,16 @@
       <button class="modal-close" type="button" id="rouletteClose" aria-label="Закрыть">✕</button>
     </div>
     <div class="modal-body">
-      <div class="roulette-container" id="rouletteContainer">
-        <div class="roulette-pointer" aria-hidden="true"></div>
-        <div class="roulette-track" id="rouletteTrack"></div>
+      <div class="roulette-lanes is-single" id="rouletteLanes" aria-hidden="true">
+        <div class="roulette-lane" data-lane-index="0">
+          <div class="roulette-lane-label">Кейс 1</div>
+          <div class="roulette-container" data-lane-index="0">
+            <div class="roulette-pointer" aria-hidden="true"></div>
+            <div class="roulette-track" data-lane-index="0"></div>
+          </div>
+        </div>
       </div>
+      <p class="roulette-status visually-hidden" id="rouletteStatus" role="status" aria-live="polite" aria-atomic="true"></p>
       <div class="roulette-case-info">
         <span class="roulette-case-name" id="rouletteCaseName"></span>
         <span class="roulette-case-price">
@@ -368,10 +374,10 @@
         <button class="win-btn win-btn-sell" type="button" id="winSell">💰 Продать</button>
         <button class="win-btn win-btn-keep" type="button" id="winKeep">🎒 В инвентарь</button>
       </div>
-      <div class="win-actions-divider"><span id="winAgainDivider">и сразу ещё</span></div>
+      <div class="win-actions-divider" hidden><span id="winAgainDivider"></span></div>
       <div class="win-actions-grid win-actions-grid-secondary">
-        <button class="win-btn win-btn-sell" type="button" id="winSellAgain">💸 Продать и крутить ещё</button>
-        <button class="win-btn win-btn-keep" type="button" id="winAgain">🔄 Оставить и ещё раз</button>
+        <button class="win-btn win-btn-sell" type="button" id="winSellAgain">💰 Продать и открыть ещё</button>
+        <button class="win-btn win-btn-keep" type="button" id="winAgain">🎒 Оставить и открыть ещё</button>
       </div>
     </div>
   </div>

@@ -192,6 +192,8 @@ const DEFAULT_BALANCE = 1250;
 const MAX_DEPOSIT = 100000;
 const MAX_BALANCE = 10000000;
 const CASE_QUANTITIES = [1, 2, 5, 10];
+const ROULETTE_ITEM_COUNT = 24;
+const ROULETTE_WIN_INDEX = 17;
 
 const RARITY_LABELS = {
   consumer: 'ширпотреб',
@@ -1031,7 +1033,7 @@ function renderCases(filter) {
   }).join('');
 }
 
-function openCase(caseId, trigger) {
+function openCase(caseId, trigger, quantity = 1) {
   if (isSpinning) return;
   const caseData = CASES.find((item) => item.id === caseId);
   if (!caseData) return;
@@ -1039,20 +1041,18 @@ function openCase(caseId, trigger) {
   currentCase = caseData;
   lastCaseId = caseId;
   currentWins = [];
-  caseOpenQuantity = 1;
+  caseOpenQuantity = CASE_QUANTITIES.includes(quantity) ? quantity : 1;
 
   $('rouletteTitle').textContent = `Открытие: ${caseData.name}`;
   $('rouletteCaseName').textContent = caseData.name;
   $('rouletteCasePrice').textContent = formatInt(caseData.price);
-  renderRouletteTrack(caseData);
+  renderRouletteLanes(caseData, caseOpenQuantity);
   renderCaseQuantity();
   setCaseQuantityControlsDisabled(false);
   updateRouletteTotal();
   updateSpinButton();
-
-  const track = $('rouletteTrack');
-  track.style.transition = 'none';
-  track.style.transform = 'translateX(0px)';
+  resetRouletteTracks();
+  announceRouletteQuantity(caseOpenQuantity);
 
   openModal($('rouletteModal'), $('spinBtn'), trigger);
 }
@@ -1084,12 +1084,18 @@ function setCaseQuantity(quantity) {
   renderCaseQuantity();
   updateRouletteTotal();
   updateSpinButton();
+
+  if (currentCase) {
+    renderRouletteLanes(currentCase, quantity);
+    resetRouletteTracks();
+    announceRouletteQuantity(quantity);
+  }
 }
 
 function rouletteItemTemplate(item) {
   return `
     <div class="roulette-item">
-      <img class="roulette-item-img" src="${escapeHtml(item.img)}" alt="">
+      <img class="roulette-item-img" src="${escapeHtml(item.img)}" alt="" decoding="async">
       <div class="roulette-item-name">${escapeHtml(item.name)}</div>
       <div class="roulette-item-price">${formatMoney(item.price)} ₽</div>
       <div class="roulette-item-rarity" style="background:${getRarityColor(item.rarity)}"></div>
@@ -1097,12 +1103,72 @@ function rouletteItemTemplate(item) {
   `;
 }
 
-function renderRouletteTrack(caseData, winIndex = -1, winItem = null) {
-  const items = [];
-  for (let index = 0; index < 60; index += 1) {
-    items.push(index === winIndex && winItem ? winItem : weightedPick(caseData.items));
+function announceRoulette(text) {
+  const status = $('rouletteStatus');
+  if (status) status.textContent = text;
+}
+
+function announceRouletteQuantity(quantity) {
+  const countLabel = quantity === 1
+    ? '1 кейс'
+    : `${quantity} ${pluralizeCases(quantity)}`;
+  const chosenLabel = quantity === 1 ? `Выбран ${countLabel}` : `Выбрано ${countLabel}`;
+  announceRoulette(`${chosenLabel}. Итого ${formatInt(currentCase.price * quantity)} ₽. Нажмите „Открыть кейс“.`);
+}
+
+function resetRouletteTracks() {
+  document.querySelectorAll('#rouletteLanes .roulette-track').forEach((track) => {
+    track.style.transition = 'none';
+    track.style.transform = 'translateX(0px)';
+  });
+}
+
+function renderRouletteLanes(caseData, quantity, wins = null) {
+  const lanesRoot = $('rouletteLanes');
+  if (!lanesRoot || !caseData) return;
+
+  const safeQuantity = CASE_QUANTITIES.includes(quantity) ? quantity : 1;
+  const hasWins = Array.isArray(wins);
+  lanesRoot.textContent = '';
+  lanesRoot.classList.toggle('is-single', safeQuantity === 1);
+
+  for (let laneIndex = 0; laneIndex < safeQuantity; laneIndex += 1) {
+    const lane = document.createElement('div');
+    lane.className = 'roulette-lane';
+    lane.dataset.laneIndex = String(laneIndex);
+
+    const label = document.createElement('div');
+    label.className = 'roulette-lane-label';
+    label.textContent = `Кейс ${laneIndex + 1}`;
+
+    const container = document.createElement('div');
+    container.className = 'roulette-container';
+    container.dataset.laneIndex = String(laneIndex);
+
+    const pointer = document.createElement('div');
+    pointer.className = 'roulette-pointer';
+    pointer.setAttribute('aria-hidden', 'true');
+
+    const track = document.createElement('div');
+    track.className = 'roulette-track';
+    track.dataset.laneIndex = String(laneIndex);
+
+    const items = [];
+    for (let itemIndex = 0; itemIndex < ROULETTE_ITEM_COUNT; itemIndex += 1) {
+      const winItem = hasWins && itemIndex === ROULETTE_WIN_INDEX ? wins[laneIndex] : null;
+      items.push(winItem || weightedPick(caseData.items));
+    }
+    track.innerHTML = items.map(rouletteItemTemplate).join('');
+
+    container.appendChild(pointer);
+    container.appendChild(track);
+    lane.appendChild(label);
+    lane.appendChild(container);
+    lanesRoot.appendChild(lane);
   }
-  $('rouletteTrack').innerHTML = items.map(rouletteItemTemplate).join('');
+
+  const spinBtn = $('spinBtn');
+  if (spinBtn) spinBtn.classList.toggle('is-sticky', safeQuantity > 1);
 }
 
 function updateSpinButton() {
@@ -1111,15 +1177,20 @@ function updateSpinButton() {
   const totalPrice = currentCase.price * caseOpenQuantity;
   const canAfford = appState.balance >= totalPrice;
 
+  button.classList.remove('is-unaffordable');
+  button.removeAttribute('aria-disabled');
+
   if (isSpinning) {
     button.disabled = true;
     button.textContent = 'Прокрутка…';
     return;
   }
 
-  button.disabled = !canAfford;
+  button.disabled = false;
 
   if (!canAfford) {
+    button.setAttribute('aria-disabled', 'true');
+    button.classList.add('is-unaffordable');
     button.textContent = `Не хватает ${formatInt(totalPrice - appState.balance)} ₽`;
   } else if (caseOpenQuantity === 1) {
     button.textContent = '🎰 Открыть кейс';
@@ -1137,7 +1208,13 @@ function pluralizeCases(count) {
 }
 
 function spinRoulette() {
+  const spinButton = $('spinBtn');
   if (!currentCase || isSpinning) return;
+
+  if (spinButton && spinButton.getAttribute('aria-disabled') === 'true') {
+    showNotification('Недостаточно средств. Пополните баланс.', 'error');
+    return;
+  }
 
   const caseData = currentCase;
   const quantity = caseOpenQuantity;
@@ -1165,42 +1242,56 @@ function spinRoulette() {
 
   isSpinning = true;
   setCaseQuantityControlsDisabled(true);
-  $('spinBtn').disabled = true;
-  $('spinBtn').textContent = 'Прокрутка…';
+  spinButton.disabled = true;
+  spinButton.removeAttribute('aria-disabled');
+  spinButton.classList.remove('is-unaffordable');
+  spinButton.textContent = 'Прокрутка…';
   $('rouletteClose').setAttribute('aria-disabled', 'true');
 
-  const showcaseItem = wonItems.reduce(
-    (best, item) => (item.price > best.price ? item : best),
-    wonItems[0],
-  );
-  const winIndex = 45;
-  renderRouletteTrack(caseData, winIndex, showcaseItem);
+  renderRouletteLanes(caseData, quantity, wonItems);
+  resetRouletteTracks();
 
-  const track = $('rouletteTrack');
-  const container = $('rouletteContainer');
-  const targetItem = track.children[winIndex];
-  track.style.transition = 'none';
-  track.style.transform = 'translateX(0px)';
+  const countLabel = quantity === 1 ? '1 кейс' : `${quantity} ${pluralizeCases(quantity)}`;
+  announceRoulette(`Открывается ${countLabel}. Прокрутка лент…`);
 
-  if (!targetItem) {
+  const lanes = Array.from(document.querySelectorAll('#rouletteLanes .roulette-lane'));
+  const animations = [];
+  let hasAllTargets = lanes.length === quantity;
+
+  for (const lane of lanes) {
+    const container = lane.querySelector('.roulette-container');
+    const track = lane.querySelector('.roulette-track');
+    const targetItem = track && track.children[ROULETTE_WIN_INDEX];
+    if (!container || !targetItem) {
+      hasAllTargets = false;
+      break;
+    }
+    const itemCenter = targetItem.offsetLeft + (targetItem.offsetWidth / 2);
+    const jitter = (Math.random() - 0.5) * Math.min(28, targetItem.offsetWidth * 0.25);
+    const offset = Math.max(0, itemCenter - (container.clientWidth / 2) + jitter);
+    animations.push({ track, offset });
+  }
+
+  const duration = prefersReducedMotion() ? 160 : 4800;
+
+  if (!hasAllTargets) {
     isSpinning = false;
     $('rouletteClose').removeAttribute('aria-disabled');
+    resetRouletteTracks();
+    announceRoulette(`Открыто ${countLabel}. Список выигрышей открыт ниже.`);
     closeModal($('rouletteModal'), { restoreFocus: false });
     showWinModal(wonItems);
     return;
   }
 
-  const itemCenter = targetItem.offsetLeft + (targetItem.offsetWidth / 2);
-  const jitter = (Math.random() - 0.5) * Math.min(28, targetItem.offsetWidth * 0.25);
-  const offset = Math.max(0, itemCenter - (container.clientWidth / 2) + jitter);
-  const duration = prefersReducedMotion() ? 160 : 4800;
-
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => {
-      track.style.transition = prefersReducedMotion()
-        ? 'transform 160ms linear'
-        : 'transform 4800ms cubic-bezier(0.12, 0.72, 0.2, 1)';
-      track.style.transform = `translateX(-${offset}px)`;
+      animations.forEach(({ track, offset }) => {
+        track.style.transition = prefersReducedMotion()
+          ? 'transform 160ms linear'
+          : 'transform 4800ms cubic-bezier(0.12, 0.72, 0.2, 1)';
+        track.style.transform = `translateX(-${offset}px)`;
+      });
     });
   });
 
@@ -1208,6 +1299,7 @@ function spinRoulette() {
     spinTimer = null;
     isSpinning = false;
     $('rouletteClose').removeAttribute('aria-disabled');
+    announceRoulette(`Открыто ${countLabel}. Список выигрышей открыт ниже.`);
     closeModal($('rouletteModal'), { restoreFocus: false });
     showWinModal(wonItems);
   }, duration + 350);
@@ -1238,12 +1330,12 @@ function setWinActionLabels(count) {
   const single = count === 1;
   $('winSell').textContent = single ? '💰 Продать' : '💰 Продать всё';
   $('winKeep').textContent = single ? '🎒 В инвентарь' : '🎒 Оставить всё';
-  $('winSellAgain').textContent = single ? '💸 Продать и крутить ещё' : '💸 Продать всё и ещё раз';
-  $('winAgain').textContent = single ? '🔄 Оставить и ещё раз' : '🔄 Оставить всё и ещё раз';
-  const divider = $('winAgainDivider');
-  if (divider) {
-    divider.textContent = single ? 'и сразу ещё' : `и сразу ещё ${count} ${pluralizeCases(count)}`;
-  }
+  $('winSellAgain').textContent = single
+    ? '💰 Продать и открыть ещё'
+    : '💰 Продать всё и открыть ещё';
+  $('winAgain').textContent = single
+    ? '🎒 Оставить и открыть ещё'
+    : '🎒 Оставить всё и открыть ещё';
 }
 
 function showWinModal(items) {
@@ -1297,6 +1389,11 @@ function resolveWin(action) {
   const wonCount = wonItems.length;
   const shouldSell = action === 'sell' || action === 'sellAgain';
   const shouldOpenAgain = action === 'again' || action === 'sellAgain';
+  const repeatCase = shouldOpenAgain && lastCaseId
+    ? CASES.find((item) => item.id === lastCaseId)
+    : null;
+  const repeatQuantity = lastCaseQuantity;
+  const repeatTotal = repeatCase ? repeatCase.price * repeatQuantity : 0;
   let soldCount = 0;
   let soldTotal = 0;
 
@@ -1314,16 +1411,22 @@ function resolveWin(action) {
       persistState();
       updateBalanceUI();
       renderInventory();
-      showNotification(
-        wonCount === 1
-          ? `Продано за ${formatMoney(soldTotal)} ₽.`
-          : `Продано ${soldCount} ${pluralizeItems(soldCount)} за ${formatMoney(soldTotal)} ₽.`,
-        'success',
-      );
-    } else {
-      showNotification('Предметы уже отсутствуют в инвентаре.', 'error');
     }
-  } else {
+  }
+
+  const lacksBalance = Boolean(repeatCase) && appState.balance < repeatTotal;
+  const saleFailed = shouldSell && !soldCount;
+
+  if (saleFailed) {
+    showNotification('Предметы уже отсутствуют в инвентаре.', 'error');
+  } else if (soldCount && !lacksBalance) {
+    showNotification(
+      wonCount === 1
+        ? `Продано за ${formatMoney(soldTotal)} ₽.`
+        : `Продано ${soldCount} ${pluralizeItems(soldCount)} за ${formatMoney(soldTotal)} ₽.`,
+      'success',
+    );
+  } else if (!shouldSell && !lacksBalance) {
     showNotification(
       wonCount === 1
         ? `${wonItems[0].name} оставлен в инвентаре.`
@@ -1332,16 +1435,7 @@ function resolveWin(action) {
     );
   }
 
-  currentWins = [];
-  closeModal($('winOverlay'));
-
-  if (!shouldOpenAgain || !lastCaseId) return;
-
-  const repeatQuantity = lastCaseQuantity;
-  const caseData = CASES.find((item) => item.id === lastCaseId);
-  const repeatTotal = caseData ? caseData.price * repeatQuantity : 0;
-
-  if (caseData && appState.balance < repeatTotal) {
+  if (lacksBalance && !saleFailed) {
     const missing = repeatTotal - appState.balance;
     const quantityLabel = repeatQuantity === 1
       ? 'одного кейса'
@@ -1350,15 +1444,17 @@ function resolveWin(action) {
       `${soldCount ? 'Продано. ' : ''}Для ещё одного открытия ${quantityLabel} не хватает ${formatMoney(missing)} ₽.`,
       'error',
     );
-    return;
   }
+
+  currentWins = [];
+  closeModal($('winOverlay'));
+
+  if (!shouldOpenAgain || !lastCaseId) return;
 
   window.setTimeout(() => {
     const trigger = document.querySelector(`[data-case-id="${lastCaseId}"]`)
       || document.querySelector('.nav-link[data-section="cases"]');
-    openCase(lastCaseId, trigger);
-    setCaseQuantity(repeatQuantity);
-    if (action === 'sellAgain') spinRoulette();
+    openCase(lastCaseId, trigger, repeatQuantity);
   }, 250);
 }
 
@@ -2199,6 +2295,25 @@ function resetProgress() {
   currentCase = null;
   caseOpenQuantity = 1;
   lastCaseQuantity = 1;
+
+  resetRouletteTracks();
+  const lanesRoot = $('rouletteLanes');
+  if (lanesRoot) {
+    lanesRoot.textContent = '';
+    lanesRoot.classList.remove('is-single');
+  }
+  const rouletteStatus = $('rouletteStatus');
+  if (rouletteStatus) rouletteStatus.textContent = '';
+  const rouletteClose = $('rouletteClose');
+  if (rouletteClose) rouletteClose.removeAttribute('aria-disabled');
+  const spinBtn = $('spinBtn');
+  if (spinBtn) {
+    spinBtn.disabled = false;
+    spinBtn.removeAttribute('aria-disabled');
+    spinBtn.classList.remove('is-unaffordable', 'is-sticky');
+    spinBtn.textContent = '🎰 Открыть кейс';
+  }
+
   selectedUpgrade = null;
   stateGeneration += 1;
   pendingBattles.clear();

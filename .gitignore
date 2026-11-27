@@ -46,3 +46,11 @@ venv/
 /design-catalog/
 /docs/design-catalog/
 /docs/superpowers/
+
+# Local agent state and generated artifacts
+/factory/state/pipeline-state.json
+/factory/runs/*.md
+!/factory/runs/README.md
+/factory/artifacts/**
+!/factory/artifacts/**/
+!/factory/artifacts/**/README.md
