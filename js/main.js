@@ -191,6 +191,7 @@ const STATE_VERSION = 1;
 const DEFAULT_BALANCE = 1250;
 const MAX_DEPOSIT = 100000;
 const MAX_BALANCE = 10000000;
+const CASE_QUANTITIES = [1, 2, 5, 10];
 
 const RARITY_LABELS = {
   consumer: 'ширпотреб',
@@ -240,8 +241,10 @@ const SECTION_IDS = {
 // ==================== STATE ====================
 let appState = loadState();
 let currentCase = null;
-let currentWin = null;
+let currentWins = [];
 let lastCaseId = null;
+let caseOpenQuantity = 1;
+let lastCaseQuantity = 1;
 let depositAmount = 0;
 let isSpinning = false;
 let spinTimer = null;
@@ -523,6 +526,10 @@ function bindEvents() {
   $('winSell').addEventListener('click', () => resolveWin('sell'));
   $('winKeep').addEventListener('click', () => resolveWin('keep'));
   $('winAgain').addEventListener('click', () => resolveWin('again'));
+  const winSellAgain = $('winSellAgain');
+  if (winSellAgain) {
+    winSellAgain.addEventListener('click', () => resolveWin('sellAgain'));
+  }
 
   $('depositClose').addEventListener('click', closeDeposit);
   $('depositSubmit').addEventListener('click', doDeposit);
@@ -643,6 +650,12 @@ function handleDocumentClick(event) {
   const caseCard = event.target.closest('[data-case-id]');
   if (caseCard) {
     openCase(Number(caseCard.dataset.caseId), caseCard);
+    return;
+  }
+
+  const quantityButton = event.target.closest('[data-case-qty]');
+  if (quantityButton) {
+    setCaseQuantity(Number(quantityButton.dataset.caseQty));
     return;
   }
 
@@ -1025,18 +1038,51 @@ function openCase(caseId, trigger) {
 
   currentCase = caseData;
   lastCaseId = caseId;
-  currentWin = null;
+  currentWins = [];
+  caseOpenQuantity = 1;
 
   $('rouletteTitle').textContent = `Открытие: ${caseData.name}`;
   $('rouletteCaseName').textContent = caseData.name;
   $('rouletteCasePrice').textContent = formatInt(caseData.price);
   renderRouletteTrack(caseData);
+  renderCaseQuantity();
+  setCaseQuantityControlsDisabled(false);
+  updateRouletteTotal();
+  updateSpinButton();
 
   const track = $('rouletteTrack');
   track.style.transition = 'none';
   track.style.transform = 'translateX(0px)';
 
   openModal($('rouletteModal'), $('spinBtn'), trigger);
+}
+
+function renderCaseQuantity() {
+  document.querySelectorAll('[data-case-qty]').forEach((button) => {
+    const isActive = Number(button.dataset.caseQty) === caseOpenQuantity;
+    button.classList.toggle('active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+  });
+}
+
+function setCaseQuantityControlsDisabled(disabled) {
+  document.querySelectorAll('[data-case-qty]').forEach((button) => {
+    button.disabled = disabled;
+  });
+}
+
+function updateRouletteTotal() {
+  if (!currentCase) return;
+  const total = currentCase.price * caseOpenQuantity;
+  const totalElement = $('rouletteTotal');
+  if (totalElement) totalElement.textContent = `Итого: ${formatInt(total)} ₽`;
+}
+
+function setCaseQuantity(quantity) {
+  if (isSpinning || !CASE_QUANTITIES.includes(quantity)) return;
+  caseOpenQuantity = quantity;
+  renderCaseQuantity();
+  updateRouletteTotal();
   updateSpinButton();
 }
 
@@ -1062,38 +1108,73 @@ function renderRouletteTrack(caseData, winIndex = -1, winItem = null) {
 function updateSpinButton() {
   if (!currentCase) return;
   const button = $('spinBtn');
-  const canAfford = appState.balance >= currentCase.price;
-  button.disabled = !canAfford || isSpinning;
-  button.textContent = canAfford ? '🎰 Открыть кейс' : 'Недостаточно средств';
+  const totalPrice = currentCase.price * caseOpenQuantity;
+  const canAfford = appState.balance >= totalPrice;
+
+  if (isSpinning) {
+    button.disabled = true;
+    button.textContent = 'Прокрутка…';
+    return;
+  }
+
+  button.disabled = !canAfford;
+
+  if (!canAfford) {
+    button.textContent = `Не хватает ${formatInt(totalPrice - appState.balance)} ₽`;
+  } else if (caseOpenQuantity === 1) {
+    button.textContent = '🎰 Открыть кейс';
+  } else {
+    button.textContent = `🎰 Открыть ${caseOpenQuantity} ${pluralizeCases(caseOpenQuantity)} · ${formatInt(totalPrice)} ₽`;
+  }
+}
+
+function pluralizeCases(count) {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  if (mod10 === 1 && mod100 !== 11) return 'кейс';
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'кейса';
+  return 'кейсов';
 }
 
 function spinRoulette() {
   if (!currentCase || isSpinning) return;
 
-  if (appState.balance < currentCase.price) {
+  const caseData = currentCase;
+  const quantity = caseOpenQuantity;
+  const totalPrice = caseData.price * quantity;
+
+  if (appState.balance < totalPrice) {
     showNotification('Недостаточно средств. Пополните баланс.', 'error');
     return;
   }
 
-  const caseData = currentCase;
-  const winItem = weightedPick(caseData.items);
-  const ownedItem = makeOwnedItem(winItem);
-  if (!ownedItem) return;
+  const wonItems = [];
+  for (let index = 0; index < quantity; index += 1) {
+    const ownedItem = makeOwnedItem(weightedPick(caseData.items));
+    if (ownedItem) wonItems.push(ownedItem);
+  }
+  if (!wonItems.length) return;
 
-  appState.balance -= caseData.price;
-  appState.inventory.push(ownedItem);
-  currentWin = ownedItem;
+  appState.balance -= totalPrice;
+  appState.inventory.push(...wonItems);
+  currentWins = wonItems;
+  lastCaseQuantity = quantity;
   persistState();
   updateBalanceUI();
   renderInventory();
 
   isSpinning = true;
+  setCaseQuantityControlsDisabled(true);
   $('spinBtn').disabled = true;
   $('spinBtn').textContent = 'Прокрутка…';
   $('rouletteClose').setAttribute('aria-disabled', 'true');
 
+  const showcaseItem = wonItems.reduce(
+    (best, item) => (item.price > best.price ? item : best),
+    wonItems[0],
+  );
   const winIndex = 45;
-  renderRouletteTrack(caseData, winIndex, winItem);
+  renderRouletteTrack(caseData, winIndex, showcaseItem);
 
   const track = $('rouletteTrack');
   const container = $('rouletteContainer');
@@ -1105,7 +1186,7 @@ function spinRoulette() {
     isSpinning = false;
     $('rouletteClose').removeAttribute('aria-disabled');
     closeModal($('rouletteModal'), { restoreFocus: false });
-    showWinModal(ownedItem);
+    showWinModal(wonItems);
     return;
   }
 
@@ -1128,7 +1209,7 @@ function spinRoulette() {
     isSpinning = false;
     $('rouletteClose').removeAttribute('aria-disabled');
     closeModal($('rouletteModal'), { restoreFocus: false });
-    showWinModal(ownedItem);
+    showWinModal(wonItems);
   }, duration + 350);
 }
 
@@ -1141,52 +1222,144 @@ function requestCloseRoulette() {
 }
 
 // ==================== WIN ====================
-function showWinModal(item) {
-  $('winItemImg').src = item.img;
-  $('winItemImg').alt = item.name;
-  $('winItemName').textContent = item.name;
-  $('winItemPrice').textContent = `${formatMoney(item.price)} ₽`;
+function winItemTemplate(item) {
+  return `
+    <li class="win-item" style="--rarity:${getRarityColor(item.rarity)}">
+      <img class="win-item-thumb" src="${escapeHtml(item.img)}" alt="">
+      <span class="win-item-copy">
+        <span class="win-list-name">${escapeHtml(item.name)}</span>
+        <span class="win-list-price">${formatMoney(item.price)} ₽</span>
+      </span>
+    </li>
+  `;
+}
+
+function setWinActionLabels(count) {
+  const single = count === 1;
+  $('winSell').textContent = single ? '💰 Продать' : '💰 Продать всё';
+  $('winKeep').textContent = single ? '🎒 В инвентарь' : '🎒 Оставить всё';
+  $('winSellAgain').textContent = single ? '💸 Продать и крутить ещё' : '💸 Продать всё и ещё раз';
+  $('winAgain').textContent = single ? '🔄 Оставить и ещё раз' : '🔄 Оставить всё и ещё раз';
+  const divider = $('winAgainDivider');
+  if (divider) {
+    divider.textContent = single ? 'и сразу ещё' : `и сразу ещё ${count} ${pluralizeCases(count)}`;
+  }
+}
+
+function showWinModal(items) {
+  if (!Array.isArray(items) || !items.length) return;
+
+  const single = items.length === 1;
+  const modal = $('winModal');
+  const winLabel = $('winLabel');
+  const singleBlock = $('winSingle');
+  const multiBlock = $('winMulti');
+
+  if (single) {
+    const item = items[0];
+    $('winItemImg').src = item.img;
+    $('winItemImg').alt = item.name;
+    $('winItemName').textContent = item.name;
+    $('winItemPrice').textContent = `${formatMoney(item.price)} ₽`;
+    $('winClose').setAttribute('aria-label', 'Оставить в инвентаре и закрыть');
+    winLabel.textContent = '🎉 Вы выиграли';
+    $('winItems').innerHTML = '';
+  } else {
+    const total = items.reduce((sum, item) => sum + item.price, 0);
+    $('winMultiSummary').textContent = `${items.length} ${pluralizeItems(items.length)} · ${formatMoney(total)} ₽`;
+    $('winItems').innerHTML = items.map(winItemTemplate).join('');
+    $('winItems').scrollTop = 0;
+    $('winClose').setAttribute('aria-label', 'Оставить всё в инвентаре и закрыть');
+    winLabel.textContent = `🎉 Выиграно ${items.length} ${pluralizeItems(items.length)}`;
+  }
+
+  if (singleBlock) singleBlock.hidden = !single;
+  if (multiBlock) multiBlock.hidden = single;
+  if (modal) modal.classList.toggle('is-multi', !single);
+  setWinActionLabels(items.length);
+
   openModal($('winOverlay'), $('winKeep'));
+  window.requestAnimationFrame(() => {
+    const list = $('winItems');
+    if (list) list.scrollTop = 0;
+    if (modal) modal.scrollTop = 0;
+  });
   if (!prefersReducedMotion()) createConfetti();
 }
 
 function resolveWin(action) {
-  if (!currentWin) {
+  if (!currentWins.length) {
     closeModal($('winOverlay'));
     return;
   }
 
-  const wonItem = currentWin;
-  const index = appState.inventory.findIndex((item) => item.id === wonItem.id);
+  const wonItems = currentWins;
+  const wonCount = wonItems.length;
+  const shouldSell = action === 'sell' || action === 'sellAgain';
+  const shouldOpenAgain = action === 'again' || action === 'sellAgain';
+  let soldCount = 0;
+  let soldTotal = 0;
 
-  if (action === 'sell') {
-    if (index >= 0) {
+  if (shouldSell) {
+    wonItems.forEach((wonItem) => {
+      const index = appState.inventory.findIndex((item) => item.id === wonItem.id);
+      if (index < 0) return;
       appState.inventory.splice(index, 1);
-      appState.balance = Math.min(appState.balance + wonItem.price, MAX_BALANCE);
+      soldCount += 1;
+      soldTotal += wonItem.price;
+    });
+
+    if (soldCount) {
+      appState.balance = Math.min(appState.balance + soldTotal, MAX_BALANCE);
       persistState();
       updateBalanceUI();
       renderInventory();
-      showNotification(`Продано за ${formatMoney(wonItem.price)} ₽.`, 'success');
+      showNotification(
+        wonCount === 1
+          ? `Продано за ${formatMoney(soldTotal)} ₽.`
+          : `Продано ${soldCount} ${pluralizeItems(soldCount)} за ${formatMoney(soldTotal)} ₽.`,
+        'success',
+      );
     } else {
-      showNotification('Предмет уже отсутствует в инвентаре.', 'error');
+      showNotification('Предметы уже отсутствуют в инвентаре.', 'error');
     }
-  } else if (action === 'again') {
-    showNotification(`${wonItem.name} оставлен в инвентаре.`, 'success');
   } else {
-    showNotification(`${wonItem.name} оставлен в инвентаре.`, 'success');
+    showNotification(
+      wonCount === 1
+        ? `${wonItems[0].name} оставлен в инвентаре.`
+        : `${wonCount} ${pluralizeItems(wonCount)} оставлены в инвентаре.`,
+      'success',
+    );
   }
 
-  currentWin = null;
-  const shouldOpenAgain = action === 'again';
+  currentWins = [];
   closeModal($('winOverlay'));
 
-  if (shouldOpenAgain && lastCaseId) {
-    window.setTimeout(() => {
-      const trigger = document.querySelector(`[data-case-id="${lastCaseId}"]`)
-        || document.querySelector('.nav-link[data-section="cases"]');
-      openCase(lastCaseId, trigger);
-    }, 250);
+  if (!shouldOpenAgain || !lastCaseId) return;
+
+  const repeatQuantity = lastCaseQuantity;
+  const caseData = CASES.find((item) => item.id === lastCaseId);
+  const repeatTotal = caseData ? caseData.price * repeatQuantity : 0;
+
+  if (caseData && appState.balance < repeatTotal) {
+    const missing = repeatTotal - appState.balance;
+    const quantityLabel = repeatQuantity === 1
+      ? 'одного кейса'
+      : `${repeatQuantity} ${pluralizeCases(repeatQuantity)}`;
+    showNotification(
+      `${soldCount ? 'Продано. ' : ''}Для ещё одного открытия ${quantityLabel} не хватает ${formatMoney(missing)} ₽.`,
+      'error',
+    );
+    return;
   }
+
+  window.setTimeout(() => {
+    const trigger = document.querySelector(`[data-case-id="${lastCaseId}"]`)
+      || document.querySelector('.nav-link[data-section="cases"]');
+    openCase(lastCaseId, trigger);
+    setCaseQuantity(repeatQuantity);
+    if (action === 'sellAgain') spinRoulette();
+  }, 250);
 }
 
 function keepWin() {
@@ -2022,8 +2195,10 @@ function resetProgress() {
     spinTimer = null;
   }
   isSpinning = false;
-  currentWin = null;
+  currentWins = [];
   currentCase = null;
+  caseOpenQuantity = 1;
+  lastCaseQuantity = 1;
   selectedUpgrade = null;
   stateGeneration += 1;
   pendingBattles.clear();

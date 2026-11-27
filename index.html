@@ -331,7 +331,17 @@
           <span id="rouletteCasePrice"></span>
         </span>
       </div>
-      <p class="section-note">Результат определяется весами предметов.</p>
+      <div class="roulette-options">
+        <span class="roulette-options-label" id="rouletteQtyLabel">Кейсов за раз</span>
+        <div class="roulette-qty" role="group" aria-labelledby="rouletteQtyLabel">
+          <button class="qty-chip active" type="button" data-case-qty="1" aria-pressed="true">1</button>
+          <button class="qty-chip" type="button" data-case-qty="2" aria-pressed="false">2</button>
+          <button class="qty-chip" type="button" data-case-qty="5" aria-pressed="false">5</button>
+          <button class="qty-chip" type="button" data-case-qty="10" aria-pressed="false">10</button>
+        </div>
+        <span class="roulette-total" id="rouletteTotal" aria-live="polite">Итого: 0 ₽</span>
+      </div>
+      <p class="section-note">Каждый кейс открывается по весам предметов. Все выигрыши появятся в одном окне.</p>
       <button class="spin-btn" id="spinBtn" type="button">🎰 Открыть кейс</button>
     </div>
   </div>
@@ -339,17 +349,30 @@
 
 <!-- Win Modal -->
 <div class="win-overlay js-modal" id="winOverlay" role="dialog" aria-modal="true" aria-labelledby="winLabel" aria-hidden="true">
-  <div class="win-modal">
+  <div class="win-modal" id="winModal">
     <button class="modal-close win-close" type="button" id="winClose" aria-label="Оставить в инвентаре и закрыть">✕</button>
     <div class="win-label" id="winLabel">🎉 Вы выиграли</div>
-    <img class="win-item-img" id="winItemImg" src="assets/placeholder.svg" alt="">
-    <div class="win-item-name" id="winItemName"></div>
-    <div class="win-item-price" id="winItemPrice"></div>
-    <p class="section-note">Предмет уже добавлен в инвентарь.</p>
-    <div class="win-actions">
-      <button class="win-btn win-btn-sell" type="button" id="winSell">💰 Продать</button>
-      <button class="win-btn win-btn-keep" type="button" id="winKeep">🎒 В инвентарь</button>
-      <button class="win-btn win-btn-keep" type="button" id="winAgain">🔄 Оставить и ещё раз</button>
+    <div class="win-single" id="winSingle">
+      <img class="win-item-img" id="winItemImg" src="assets/placeholder.svg" alt="">
+      <div class="win-item-name" id="winItemName"></div>
+      <div class="win-item-price" id="winItemPrice"></div>
+      <p class="section-note">Предмет уже добавлен в инвентарь.</p>
+    </div>
+    <div class="win-multi" id="winMulti" hidden>
+      <p class="win-multi-summary" id="winMultiSummary"></p>
+      <ul class="win-items" id="winItems" aria-label="Выигранные предметы"></ul>
+      <p class="section-note">Все предметы уже добавлены в инвентарь.</p>
+    </div>
+    <div class="win-actions win-actions-composed">
+      <div class="win-actions-grid">
+        <button class="win-btn win-btn-sell" type="button" id="winSell">💰 Продать</button>
+        <button class="win-btn win-btn-keep" type="button" id="winKeep">🎒 В инвентарь</button>
+      </div>
+      <div class="win-actions-divider"><span id="winAgainDivider">и сразу ещё</span></div>
+      <div class="win-actions-grid win-actions-grid-secondary">
+        <button class="win-btn win-btn-sell" type="button" id="winSellAgain">💸 Продать и крутить ещё</button>
+        <button class="win-btn win-btn-keep" type="button" id="winAgain">🔄 Оставить и ещё раз</button>
+      </div>
     </div>
   </div>
 </div>

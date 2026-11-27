@@ -2882,6 +2882,69 @@ a {
   font-weight: 800;
 }
 
+.roulette-options {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 14px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+}
+
+.roulette-options-label {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.roulette-qty {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.qty-chip {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+
+.qty-chip:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.qty-chip.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.roulette-total {
+  margin-left: auto;
+  color: var(--accent);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
 .modal-body > .section-note {
   margin-bottom: 16px;
   text-align: center;
@@ -2946,9 +3009,62 @@ a {
   margin-top: 16px;
 }
 
+.win-actions-composed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.win-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.win-actions-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.win-actions-divider::before,
+.win-actions-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.win-actions-grid-secondary .win-btn {
+  min-height: 42px;
+  background: transparent;
+}
+
+.win-actions-grid-secondary .win-btn-sell {
+  border-color: rgba(200, 249, 79, 0.28);
+  background: transparent;
+  color: var(--accent);
+}
+
+.win-actions-grid-secondary .win-btn:hover {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.win-actions-grid-secondary .win-btn-sell:hover {
+  border-color: rgba(200, 249, 79, 0.5);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
 .win-btn {
   min-height: 46px;
-  padding: 10px 12px;
+  padding: 10px 8px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--surface-raised);
@@ -2969,7 +3085,8 @@ a {
   color: var(--accent);
 }
 
-.win-btn-keep:last-child {
+/* Три кнопки (страницы-превью): последняя занимает всю строку. */
+.win-btn-keep:last-child:nth-child(3) {
   grid-column: 1 / -1;
 }
 
@@ -2982,6 +3099,88 @@ a {
 #winKeep:hover {
   background: var(--accent-strong);
   color: var(--accent-ink);
+}
+
+.win-single,
+.win-multi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.win-single[hidden],
+.win-multi[hidden] {
+  display: none;
+}
+
+.win-modal.is-multi {
+  width: min(560px, 100%);
+  overflow-y: auto;
+}
+
+.win-multi-summary {
+  margin: 2px 0 10px;
+  color: var(--accent);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.win-items {
+  display: grid;
+  width: 100%;
+  max-height: min(42vh, 330px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-content: start;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 2px;
+  overflow-y: auto;
+  list-style: none;
+  text-align: left;
+}
+
+.win-item {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+  padding: 5px 8px 5px 6px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--rarity, var(--border));
+  border-radius: 8px;
+  background: var(--surface-raised);
+}
+
+.win-item-thumb {
+  flex-shrink: 0;
+  width: 44px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.win-item-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.win-list-name {
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.win-list-price {
+  color: var(--accent);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
 }
 
 /* Deposit */
@@ -3629,6 +3828,10 @@ a {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .win-actions-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
   .win-btn-keep:last-child {
     grid-column: auto;
   }
@@ -3676,6 +3879,31 @@ a {
 
   .roulette-track {
     padding: 14px 0;
+  }
+
+  .roulette-options {
+    gap: 8px 10px;
+    padding: 8px 10px;
+  }
+
+  .roulette-total {
+    width: 100%;
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .win-modal.is-multi {
+    padding: 24px 14px 16px;
+  }
+
+  .win-items {
+    max-height: 38vh;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .win-item-thumb {
+    width: 38px;
+    height: 30px;
   }
 
   .upgrade-brand-chip {
